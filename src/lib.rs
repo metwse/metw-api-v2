@@ -5,18 +5,35 @@
 // Enable documentation for all features on docs.rs.
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-/// Database entities.
+/// Database entities
 pub mod entity;
 
-use axum::{Json, Router, routing::get};
+/// Database manipulation service
+pub mod service;
+
+/// Data access repository
+pub mod repository;
+
+/// Database connection utilities
+pub mod database;
+
+use axum::{routing::get, Json, Router};
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::time::Instant;
 use utoipa::{OpenApi, ToSchema};
 
+/// API configuration
+pub struct ApiConfiguration {
+    /// Postgres database connection string
+    pub database_url: String,
+    /// Redis connection string
+    pub redis_url: String,
+}
+
 /// Application status
 #[derive(Serialize, ToSchema)]
-pub struct ApiStatus {
+struct ApiStatus {
     /// Message to clients.
     pub message: String,
     /// Recovery script that should be executed by clients if present.
@@ -62,10 +79,15 @@ async fn openapi() -> Json<utoipa::openapi::OpenApi> {
 }
 
 /// API router
-pub fn api() -> Router {
+pub async fn api(config: ApiConfiguration) -> Router {
     let _ = *STARTUP_TIME;
+
+    let db = database::Database::new(config.database_url).await;
+    let redis = database::Redis::new(config.redis_url).await;
 
     Router::new()
         .route("/", get(status))
         .route("/api-docs/openapi.json", get(openapi))
+        .with_state(db)
+        .with_state(redis)
 }

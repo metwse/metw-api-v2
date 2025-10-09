@@ -12,7 +12,9 @@ repository = "https://github.com/metwse/metw-api-v2"
 [dependencies]
 axum = "0.8"
 tokio = { version = "1", features = ["net", "rt", "rt-multi-thread"] }
-sqlx = { version = "0.8", features = ["postgres", "bit-vec"] }
+
+sqlx = { version = "0.8", features = ["postgres", "bit-vec", "runtime-tokio"] }
+redis = { version = "*", features = ["tokio-comp", "connection-manager"] }
 
 serde = { version = "1", features = ["derive"] }
 
@@ -22,4 +24,9 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 lazy_static = "1.5"
+dotenv = "0.15"
+
 thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

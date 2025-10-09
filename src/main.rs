@@ -1,9 +1,12 @@
-use metw_api_v2::api;
+use dotenv::dotenv;
+use metw_api_v2::{api, ApiConfiguration};
 use std::{env, net::SocketAddr};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -21,5 +24,13 @@ async fn main() {
         .await
         .unwrap();
 
-    axum::serve(listener, api()).await.unwrap();
+    axum::serve(
+        listener,
+        api(ApiConfiguration {
+            database_url: env::var("DATABASE_URL").unwrap(),
+            redis_url: env::var("REDIS_URL").unwrap(),
+        }).await,
+    )
+    .await
+    .unwrap();
 }
