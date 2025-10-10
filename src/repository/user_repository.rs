@@ -53,17 +53,23 @@ impl UserRepository {
 
 #[cfg(test)]
 mod tests {
+    use crate::state::Config;
     use super::*;
-    use std::env;
 
     #[tokio::test]
     async fn test_queries() {
-        let db = Database::new(env::var("DATABASE_URL").unwrap()).await;
+        let config = Config::from_env(Some(".env.test")).unwrap();
+
+        let db = Database::new(&config.database_url).await;
 
         let repo = UserRepository::new(db);
 
-        repo.get_user_by_id(1).await;
-        repo.get_user_by_username("metw").await;
-        repo.get_profile_by_user_id(1).await;
+        for i in 1..=9 {
+            repo.get_user_by_id(i + 1000).await.unwrap();
+            repo.get_user_by_username(&format!("user0{i}")).await.unwrap();
+            repo.get_profile_by_user_id(i + 1000).await.unwrap();
+        }
+
+        assert!(repo.get_user_by_id(999).await.is_none());
     }
 }
