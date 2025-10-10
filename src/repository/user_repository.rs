@@ -1,4 +1,4 @@
-use crate::{database::Database, entity};
+use crate::{state::Database, entity};
 
 /// User data access repository
 pub struct UserRepository {
@@ -12,7 +12,7 @@ impl UserRepository {
     }
 
     /// Finds an user from its ID.
-    pub async fn find(&self, id: i64) -> Option<entity::User> {
+    pub async fn get_user_by_id(&self, id: i64) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
@@ -25,7 +25,7 @@ impl UserRepository {
     }
 
     /// Finds an user from its username.
-    pub async fn find_by_username(&self, username: &str) -> Option<entity::User> {
+    pub async fn get_user_by_username(&self, username: &str) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
@@ -38,7 +38,7 @@ impl UserRepository {
     }
 
     /// Fetches user's profile from its ID.
-    pub async fn fetch_profile(&self, user_id: i64) -> Option<entity::Profile> {
+    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::Profile>(
@@ -62,8 +62,8 @@ mod tests {
 
         let repo = UserRepository::new(db);
 
-        repo.find(1).await;
-        repo.find_by_username("metw").await;
-        repo.fetch_profile(1).await;
+        repo.get_user_by_id(1).await;
+        repo.get_user_by_username("metw").await;
+        repo.get_profile_by_user_id(1).await;
     }
 }

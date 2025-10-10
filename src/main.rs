@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use metw_api_v2::{api, ApiConfiguration};
+use metw_api_v2::{app::create_router, state::{self, Config}};
 use std::{env, net::SocketAddr};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -24,12 +24,11 @@ async fn main() {
         .await
         .unwrap();
 
+    let config = Config::from_env(Some(".env")).unwrap();
+
     axum::serve(
         listener,
-        api(ApiConfiguration {
-            database_url: env::var("DATABASE_URL").unwrap(),
-            redis_url: env::var("REDIS_URL").unwrap(),
-        }).await,
+        create_router(state::bootstrap(config).await).await
     )
     .await
     .unwrap();
