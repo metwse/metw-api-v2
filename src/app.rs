@@ -29,7 +29,7 @@ lazy_static! {
     get,
     path = "/",
     responses(
-        (status = 200, description = "Application status", body = ApiStatus)
+        (status = OK, description = "Application status", body = ApiStatus)
     )
 )]
 async fn status() -> Json<ApiStatus> {
@@ -45,7 +45,7 @@ async fn status() -> Json<ApiStatus> {
     get,
     path = "/api-docs/openapi.json",
     responses(
-        (status = 200, description = "OpenApi JSON", body = ApiDoc)
+        (status = OK, description = "OpenApi JSON", body = ApiDoc)
     )
 )]
 async fn openapi() -> Json<utoipa::openapi::OpenApi> {

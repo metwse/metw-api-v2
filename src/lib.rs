@@ -19,3 +19,10 @@ pub mod state;
 
 /// API application
 pub mod app;
+
+/// Utility functions
+pub mod util;
+
+/// Test helpers
+#[cfg(test)]
+pub mod testutil;

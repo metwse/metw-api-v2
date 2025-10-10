@@ -53,16 +53,14 @@ impl UserRepository {
 
 #[cfg(test)]
 mod tests {
-    use crate::state::Config;
+    use serial_test::serial;
+    use crate::testutil::test_db;
     use super::*;
 
+    #[serial]
     #[tokio::test]
     async fn test_queries() {
-        let config = Config::from_env(Some(".env.test")).unwrap();
-
-        let db = Database::new(&config.database_url).await;
-
-        let repo = UserRepository::new(db);
+        let repo = UserRepository::new(test_db().await);
 
         for i in 1..=9 {
             repo.get_user_by_id(i + 1000).await.unwrap();
