@@ -6,6 +6,8 @@ pub struct Config {
     pub database_url: String,
     /// Redis connection string
     pub redis_url: String,
+    /// Secret for signing JWTs
+    pub jwt_secret: String,
 }
 
 impl Config {
@@ -20,6 +22,7 @@ impl Config {
         Ok(Self {
             database_url: env::var("DATABASE_URL")?,
             redis_url: env::var("REDIS_URL")?,
+            jwt_secret: env::var("JWT_SECRET")?,
         })
     }
 }

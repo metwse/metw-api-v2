@@ -1,8 +1,43 @@
 use crate::{state::Redis, util::timestamp};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use redis::AsyncCommands;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::marker::PhantomData;
+
+/// 90 days
+static AUTH_TOKEN_TTL: u64 = 3600 * 24 * 90;
+
+/// Basic user account authentication token
+#[derive(Serialize, Deserialize)]
+pub struct AuthToken {
+    /// User ID (sub)
+    pub id: u64,
+    /// Username
+    pub username: String,
+    /// Issued at (as Unix timestamp)
+    pub iat: u64,
+    /// Expires at (as Unix timestamp)
+    pub exp: u64,
+}
+
+impl WebToken for AuthToken {
+    fn sub(&self) -> u64 {
+        self.id
+    }
+
+    fn exp(&self) -> u64 {
+        self.exp
+    }
+
+    fn iat(&self) -> u64 {
+        self.iat
+    }
+}
+
+/// Creates a new [`AuthToken`] service.
+pub fn new_auth_token_service(redis: Redis, secret: &str) -> TokenService<AuthToken> {
+    TokenService::new(redis, secret, String::from("auth-token"), AUTH_TOKEN_TTL)
+}
 
 /// Service for managing JWT tokens backed by Redis.
 pub struct TokenService<T> {

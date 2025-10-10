@@ -1,4 +1,7 @@
-use crate::state::{Config, Database, Redis};
+use crate::{
+    Config,
+    state::{Database, Redis},
+};
 
 /// Initializes PostgreSQL connection pool from test environment file.
 pub async fn test_db() -> Database {

@@ -6,6 +6,4 @@ pub fn timestamp() -> u64 {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs()
-        .try_into()
-        .expect("Greetings from 2025 to year 584 billion!")
 }

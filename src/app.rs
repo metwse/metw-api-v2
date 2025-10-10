@@ -1,4 +1,4 @@
-use crate::state::AppState;
+use crate::{AppState, routes};
 use axum::{Json, Router, routing::get};
 use lazy_static::lazy_static;
 use serde::Serialize;
@@ -8,23 +8,29 @@ use utoipa::{OpenApi, ToSchema};
 /// Application status
 #[derive(Serialize, ToSchema)]
 struct ApiStatus {
-    /// Message to clients.
+    /// Message to clients
     pub message: String,
-    /// Recovery script that should be executed by clients if present.
+    /// Recovery script that should be executed by clients if present
     pub js: Option<String>,
-    /// Uptime of the API server, in seconds.
+    /// Uptime of the API server, in seconds
     pub uptime: u64,
 }
 
-#[derive(OpenApi, ToSchema)]
-#[openapi(paths(openapi, status), components(schemas(ApiStatus, ApiDoc)))]
+#[derive(OpenApi)]
+#[openapi(
+    paths(status),
+    components(schemas(ApiStatus)),
+    nest(
+        (path = "/gateway", api = routes::GatewayApiDoc))
+    )
+]
 struct ApiDoc;
 
 lazy_static! {
     static ref STARTUP_TIME: Instant = Instant::now();
 }
 
-/// Status of the application.
+/// Status of the application
 #[utoipa::path(
     get,
     path = "/",
@@ -41,13 +47,6 @@ async fn status() -> Json<ApiStatus> {
 }
 
 /// Return JSON version of an OpenAPI schema
-#[utoipa::path(
-    get,
-    path = "/api-docs/openapi.json",
-    responses(
-        (status = OK, description = "OpenApi JSON", body = ApiDoc)
-    )
-)]
 async fn openapi() -> Json<utoipa::openapi::OpenApi> {
     Json(ApiDoc::openapi())
 }
@@ -58,6 +57,6 @@ pub async fn create_router(state: AppState) -> Router {
 
     Router::new()
         .route("/", get(status))
-        .route("/api-docs/openapi.json", get(openapi))
+        .route("/openapi.json", get(openapi))
         .with_state(state)
 }

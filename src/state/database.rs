@@ -10,6 +10,7 @@ impl Database {
     /// Creates a new [`PgPool`] wrapped with [`Database`].
     pub async fn new(con_url: &str) -> Database {
         let pool = PgPool::connect(con_url).await.unwrap();
+        tracing::trace!("Connected to the PostgreSQL database");
 
         Database { pool }
     }

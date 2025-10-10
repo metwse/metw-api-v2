@@ -1,14 +1,30 @@
 # metw-api-v2
 metw.cc API v2 integrates PostgreSQL and Redis.
 
+## API Documenatation
+The project exposes an OpenAPI specification at:
+```
+/openapi.json
+```
+This endpoint provides a complete machine-readable API schema that describes
+all available endpoints, request/response types, and authentication details.
+
+You can view and interact with the API documentation using Swagger UI or any
+OpenAPI-compatible client.
+
 ## Environment Setup
 Create a `.env` file (you can copy `.env.example`):
 ```sh
 DATABASE_URL=postgres://metwcc:db_password@localhost:5432/metw-v2
 REDIS_URL=redis://localhost/
+JWT_SECRET=CHANGEME
+HOST=127.0.0.1:1186
 ```
 > These environment variables are used by the backend for connecting to
   PostgreSQL and Redis.
+
+If the `HOST` environment variable is not set, the application will bind to the
+local loopback address `127.0.0.1` on port `1186` by default.
 
 ## Development Environment
 You can start a local PostgreSQL instance using the provided Dockerfile inside

@@ -1,4 +1,4 @@
-use crate::{state::Database, entity};
+use crate::{entity, state::Database};
 
 /// User data access repository
 pub struct UserRepository {
@@ -53,9 +53,9 @@ impl UserRepository {
 
 #[cfg(test)]
 mod tests {
-    use serial_test::serial;
-    use crate::testutil::test_db;
     use super::*;
+    use crate::testutil::test_db;
+    use serial_test::serial;
 
     #[serial]
     #[tokio::test]
@@ -64,7 +64,9 @@ mod tests {
 
         for i in 1..=9 {
             repo.get_user_by_id(i + 1000).await.unwrap();
-            repo.get_user_by_username(&format!("user0{i}")).await.unwrap();
+            repo.get_user_by_username(&format!("user0{i}"))
+                .await
+                .unwrap();
             repo.get_profile_by_user_id(i + 1000).await.unwrap();
         }
 

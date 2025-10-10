@@ -20,9 +20,24 @@ pub mod state;
 /// API application
 pub mod app;
 
+/// Data transfer objects
+pub mod dto;
+
+/// Request handlers
+pub mod handlers;
+
+/// API routes
+pub mod routes;
+
 /// Utility functions
 pub mod util;
+
+/// API response
+pub mod response;
 
 /// Test helpers
 #[cfg(test)]
 pub mod testutil;
+
+pub use app::create_router;
+pub use state::{AppState, Config};

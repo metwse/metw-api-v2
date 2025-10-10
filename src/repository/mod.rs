@@ -5,7 +5,7 @@ macro_rules! unwrap_fetch_one {
             Err(err) => match err {
                 sqlx::Error::RowNotFound => None,
                 _ => panic!("{}", err),
-            }
+            },
         }
     };
 }
