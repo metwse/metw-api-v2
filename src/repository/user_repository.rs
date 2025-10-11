@@ -1,4 +1,4 @@
-use crate::{entity, state::Database};
+use crate::{dto::user::FullProfileDto, entity, state::Database};
 
 /// User data access repository
 pub struct UserRepository {
@@ -49,6 +49,19 @@ impl UserRepository {
             .bind(user_id)
         )
     }
+
+    /// Fetches user's full profile from its ID.
+    pub async fn get_full_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as::<_, FullProfileDto>(
+                r#"SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
+                FROM profiles LEFT JOIN users ON user_id = users.id
+                WHERE user_id = $1"#,
+            )
+            .bind(user_id)
+        )
+    }
 }
 
 #[cfg(test)]
@@ -68,6 +81,7 @@ mod tests {
                 .await
                 .unwrap();
             repo.get_profile_by_user_id(i + 1000).await.unwrap();
+            repo.get_full_profile_by_user_id(i + 1000).await.unwrap();
         }
 
         assert!(repo.get_user_by_id(999).await.is_none());

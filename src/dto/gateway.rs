@@ -14,5 +14,5 @@ pub struct AuthUserDto {
 #[derive(Serialize, ToSchema)]
 pub struct TokenDto {
     /// JSON Web Token
-    token: String,
+    pub token: String,
 }

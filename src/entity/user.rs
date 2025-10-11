@@ -1,7 +1,7 @@
-use sqlx::types::BitVec;
+use sqlx::{prelude::FromRow, types::BitVec};
 
 /// User
-#[derive(Clone, Debug, sqlx::FromRow)]
+#[derive(Clone, Debug, FromRow)]
 pub struct User {
     /// Unique identifier for the user
     pub id: i64,
@@ -14,7 +14,7 @@ pub struct User {
 }
 
 /// Email addresses used for the authentication
-#[derive(Clone, Debug, sqlx::FromRow)]
+#[derive(Clone, Debug, FromRow)]
 pub struct Email {
     /// Unique identifier for email
     pub id: i64,

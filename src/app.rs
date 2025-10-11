@@ -22,7 +22,8 @@ struct ApiStatus {
     components(schemas(ApiStatus)),
     nest(
         (path = "/gateway", api = routes::GatewayApiDoc),
-        (path = "/posts", api = routes::PostsApiDoc)
+        (path = "/posts", api = routes::PostsApiDoc),
+        (path = "/users", api = routes::UsersApiDoc)
     )
 )]
 struct ApiDoc;
