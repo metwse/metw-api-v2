@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS posts
 (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
-    thread_id bigint NOT NULL,
-    replies_thread_id bigint,
+    thread_id bigint,
+    replies_thread_id bigint NOT NULL,
     content text COLLATE pg_catalog."default",
     is_edited boolean NOT NULL DEFAULT false,
     attachments bigint[],

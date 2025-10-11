@@ -21,9 +21,10 @@ struct ApiStatus {
     paths(status),
     components(schemas(ApiStatus)),
     nest(
-        (path = "/gateway", api = routes::GatewayApiDoc))
+        (path = "/gateway", api = routes::GatewayApiDoc),
+        (path = "/posts", api = routes::PostsApiDoc)
     )
-]
+)]
 struct ApiDoc;
 
 lazy_static! {

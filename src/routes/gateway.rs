@@ -11,7 +11,7 @@ use utoipa::OpenApi;
     paths(gateway_handler::create_user, gateway_handler::login),
     components(schemas(AuthUserDto, TokenDto)),
     tags(
-        (name = "Gateway", description = "User authentication endpoints")
+        (name = "gateway_handler", description = "User authentication endpoints")
     )
 )]
 pub struct GatewayApiDoc;

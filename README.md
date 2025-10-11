@@ -4,7 +4,7 @@ metw.cc API v2 integrates PostgreSQL and Redis.
 ## API Documenatation
 The project exposes an OpenAPI specification at:
 ```
-/openapi.json
+https://localhost:1186/openapi.json
 ```
 This endpoint provides a complete machine-readable API schema that describes
 all available endpoints, request/response types, and authentication details.

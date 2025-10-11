@@ -1,7 +1,7 @@
 use sqlx::types::BitVec;
 
 /// User
-#[derive(Clone, sqlx::FromRow)]
+#[derive(Clone, Debug, sqlx::FromRow)]
 pub struct User {
     /// Unique identifier for the user
     pub id: i64,
@@ -14,7 +14,7 @@ pub struct User {
 }
 
 /// Email addresses used for the authentication
-#[derive(Clone, sqlx::FromRow)]
+#[derive(Clone, Debug, sqlx::FromRow)]
 pub struct Email {
     /// Unique identifier for email
     pub id: i64,
@@ -27,13 +27,11 @@ pub struct Email {
 }
 
 /// User's public profile
-#[derive(Clone, sqlx::FromRow)]
+#[derive(Clone, Debug, sqlx::FromRow)]
 pub struct Profile {
-    /// Id of the [`User`] that profile belongs to
+    /// Id of the user that profile belongs to
     pub user_id: i64,
-    /// A [`Thread`] id for comments on user's wall
-    ///
-    /// [`Thread`]: super::Thread
+    /// A thread id for comments on user's wall
     pub comments_thread_id: Option<i64>,
     /// Attachment id for user's avatar
     pub avatar_id: Option<i64>,

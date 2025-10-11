@@ -59,7 +59,7 @@ mod tests {
 
     #[serial]
     #[tokio::test]
-    async fn test_queries() {
+    async fn queries() {
         let repo = UserRepository::new(test_db().await);
 
         for i in 1..=9 {

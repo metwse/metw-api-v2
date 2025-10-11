@@ -11,7 +11,7 @@ static AUTH_TOKEN_TTL: u64 = 3600 * 24 * 90;
 #[derive(Serialize, Deserialize)]
 pub struct AuthToken {
     /// User ID (sub)
-    pub id: u64,
+    pub id: i64,
     /// Username
     pub username: String,
     /// Issued at (as Unix timestamp)
@@ -21,7 +21,7 @@ pub struct AuthToken {
 }
 
 impl WebToken for AuthToken {
-    fn sub(&self) -> u64 {
+    fn sub(&self) -> i64 {
         self.id
     }
 
@@ -53,14 +53,14 @@ pub struct TokenService<T> {
 
 /// Fields required for a web token verification.
 pub trait WebToken {
+    /// Returns the subject (i.e., user identifier) this token belongs to.
+    fn sub(&self) -> i64;
+
     /// Returns the expiration as a UTC timestamp.
     fn exp(&self) -> u64;
 
     /// Returns the issue time as a UTC timestamp.
     fn iat(&self) -> u64;
-
-    /// Returns the subject (i.e., user identifier) this token belongs to.
-    fn sub(&self) -> u64;
 }
 
 impl<T> TokenService<T>
@@ -85,7 +85,7 @@ where
     }
 
     /// Revokes all tokens associated with the given subject.
-    pub async fn revoke_tokens_for(&self, sub: u64) {
+    pub async fn revoke_tokens_for(&self, sub: i64) {
         let key = format!("{}:token-revocation:{}", self.key, sub);
 
         redis::pipe()
@@ -138,8 +138,8 @@ mod tests {
 
     #[derive(Debug, Serialize, Deserialize)]
     struct SampleToken {
+        sub: i64,
         iat: u64,
-        sub: u64,
         exp: u64,
     }
 
@@ -152,7 +152,7 @@ mod tests {
             self.iat
         }
 
-        fn sub(&self) -> u64 {
+        fn sub(&self) -> i64 {
             self.sub
         }
     }
