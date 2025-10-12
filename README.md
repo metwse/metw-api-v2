@@ -1,5 +1,14 @@
 # metw-api-v2
-metw.cc API v2 integrates PostgreSQL and Redis.
+metw.cc API version 2 source tree.
+
+## Contributing
+<img width="96" height="96" alt="no-ai-slop" align="right" src="https://github.com/user-attachments/assets/bca16d5a-a6fe-4cbf-b41f-1176e000cff2" />
+
+Contributions are welcome! Please check our
+[Code of Conduct](http://github.com/metwse/code-of-conduct) before submitting
+pull requests.
+
+AI-generated code is strongly discouraged.
 
 ## API Documenatation
 The project exposes an OpenAPI specification at:
