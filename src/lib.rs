@@ -5,6 +5,20 @@
 // Enable documentation for all features on docs.rs.
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+lazy_static::lazy_static! {
+    /// Year zero of metw.cc.
+    ///
+    /// 2022 Aug 12, 00:00:00
+    pub static ref EPOCH: u64 = NaiveDateTime::new(
+        NaiveDate::from_ymd_opt(2022, 8, 12).unwrap(),
+        NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
+    ).and_utc().timestamp() as u64;
+}
+
+mod snowflake;
+
+pub use snowflake::snowflake;
+
 /// Database entities
 pub mod entity;
 
@@ -40,4 +54,5 @@ pub mod response;
 pub mod testutil;
 
 pub use app::create_router;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 pub use state::{AppState, Config};
