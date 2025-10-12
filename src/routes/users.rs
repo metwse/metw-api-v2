@@ -1,16 +1,13 @@
+use crate::AppState;
 use axum::Router;
 use utoipa::OpenApi;
 
 /// Users API documentations
 #[derive(OpenApi)]
-#[openapi(
-    tags(
-        (name = "user_handler", description = "User API")
-    )
-)]
+#[openapi()]
 pub struct UsersApiDoc;
 
 /// Users routes
-pub fn users_routes() -> Router {
-    Router::new()
+pub fn user_routes(state: AppState) -> Router {
+    Router::new().with_state(state)
 }

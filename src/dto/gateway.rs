@@ -1,6 +1,27 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+api_errors!(
+    GatewayError,
+    {
+        CannotCreateAccount => (
+            kinds(AccountCreationDisabled),
+            description("account creation is disabled by the server"),
+            status_code(FORBIDDEN),
+        ),
+        InappropriatePasswordOrUsername => (
+            kinds(UsernameRejected | PasswordRejected),
+            description("could not create an account due to username or password"),
+            status_code(BAD_REQUEST),
+        ),
+        InvalidCredentials => (
+            kinds(InvalidCredentials),
+            description("provided username or password is incorrect"),
+            status_code(UNAUTHORIZED),
+        )
+    }
+);
+
 /// Username and password for account creation or login
 #[derive(Deserialize, ToSchema)]
 pub struct AuthUserDto {

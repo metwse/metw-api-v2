@@ -1,8 +1,8 @@
-use crate::{
-    entity, response::AppResult
-};
+use crate::{entity, response::AppResult};
 
-/// A router for creating user
+/// Get post by ID.
+///
+/// Fethes one post from ID.
 #[utoipa::path(
     get,
     path = "/{id}",

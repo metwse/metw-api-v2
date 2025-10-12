@@ -1,6 +1,7 @@
 use crate::{
-    dto::gateway::{AuthUserDto, TokenDto},
-    handlers::gateway_handler,
+    AppState,
+    dto::gateway::{AuthUserDto, GatewayError, TokenDto},
+    handlers::gateway_handler as gateway,
 };
 use axum::{Router, routing::post};
 use utoipa::OpenApi;
@@ -8,17 +9,15 @@ use utoipa::OpenApi;
 /// Gateway API documentations
 #[derive(OpenApi)]
 #[openapi(
-    paths(gateway_handler::create_user, gateway_handler::login),
-    components(schemas(AuthUserDto, TokenDto)),
-    tags(
-        (name = "gateway_handler", description = "User authentication endpoints")
-    )
+    paths(gateway::create_user, gateway::login),
+    components(schemas(AuthUserDto, TokenDto, GatewayError))
 )]
 pub struct GatewayApiDoc;
 
 /// Gateway routes
-pub fn gateway_routes() -> Router {
+pub fn gateway_routes(state: AppState) -> Router {
     Router::new()
-        .route("/register", post(gateway_handler::create_user))
-        .route("/login", post(gateway_handler::login))
+        .route("/register", post(gateway::create_user))
+        .route("/login", post(gateway::login))
+        .with_state(state)
 }

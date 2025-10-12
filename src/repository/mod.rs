@@ -7,7 +7,7 @@ macro_rules! unwrap_fetch_one {
                 _ => {
                     tracing::error!(?err, "Unexcepted sqlx error");
                     None
-                },
+                }
             },
         }
     };
@@ -20,7 +20,7 @@ macro_rules! unwrap_fetch_all {
             Err(err) => {
                 tracing::error!(?err, "Unexcepted sqlx error");
                 vec![]
-            },
+            }
         }
     };
 }

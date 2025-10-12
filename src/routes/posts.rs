@@ -1,20 +1,15 @@
-use axum::{routing::get, Router};
+use crate::{AppState, entity, handlers::post_handler as posts};
+use axum::{Router, routing::get};
 use utoipa::OpenApi;
-use crate::{entity, handlers::post_handler};
 
 /// Posts API documentations
 #[derive(OpenApi)]
-#[openapi(
-    paths(post_handler::get_post_by_id),
-    components(schemas(entity::Post)),
-    tags(
-        (name = "post_handler", description = "Post/thread API")
-    )
-)]
+#[openapi(paths(posts::get_post_by_id), components(schemas(entity::Post)))]
 pub struct PostsApiDoc;
 
 /// Posts routes
-pub fn posts_routes() -> Router {
+pub fn post_routes(state: AppState) -> Router {
     Router::new()
-        .route("/", get(post_handler::get_post_by_id))
+        .route("/", get(posts::get_post_by_id))
+        .with_state(state)
 }
