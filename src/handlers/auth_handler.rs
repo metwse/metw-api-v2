@@ -18,7 +18,7 @@ use crate::{
     ),
 )]
 pub async fn register() -> AppResult<TokenDto> {
-    Err(AuthError::AccountCreationDisabled.into())
+    Err(AuthError::RegistrationRejected.into())
 }
 
 /// Logs into user account.
