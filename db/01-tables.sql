@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users
 (
     id bigint NOT NULL,
     username character varying(20) COLLATE pg_catalog."default" NOT NULL,
-    password text COLLATE pg_catalog."default" NOT NULL,
+    password_hash text COLLATE pg_catalog."default" NOT NULL,
     flags bit(2) NOT NULL,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_username_key UNIQUE (username)

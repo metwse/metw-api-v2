@@ -1,9 +1,10 @@
 use crate::{
+    dto::auth::{error_examples, AccountCreationDto, AuthError, AuthUserDto, TokenDto},
+    response::{AppOk, AppResult},
+    service::token_service::AuthToken,
     AppState,
-    dto::auth::{AuthError, AuthUserDto, TokenDto, error_examples},
-    response::AppResult,
 };
-use axum::{Json, extract::State};
+use axum::{extract::State, Json};
 
 /// Register a new account.
 ///
@@ -14,7 +15,7 @@ use axum::{Json, extract::State};
     path = "/register",
     request_body = AuthUserDto,
     responses(
-        (status = CREATED, description = "Register a new account", body = TokenDto),
+        (status = CREATED, description = "Account info for registered account", body = AccountCreationDto),
         error_examples::CannotCreateAccountDto,
         error_examples::InappropriatePasswordOrUsernameDto,
     ),
@@ -22,7 +23,7 @@ use axum::{Json, extract::State};
 pub async fn register(
     state: State<AppState>,
     Json(credentials): Json<AuthUserDto>,
-) -> AppResult<TokenDto> {
+) -> AppResult<AccountCreationDto> {
     if !state.config.allow_account_creation {
         return Err(AuthError::RegistrationRejected.into());
     }
@@ -33,7 +34,23 @@ pub async fn register(
         _ => return Err(AuthError::UsernameTooLong.into()),
     };
 
-    todo!()
+    if let Some(user) = state
+        .user_service
+        .create_user(credentials.username.clone(), credentials.password)
+        .await
+    {
+        let dto = AccountCreationDto {
+            token: state
+                .auth_token_service
+                .sign(AuthToken::new(user.id, credentials.username))
+                .await,
+            user,
+        };
+
+        AppOk(dto).into()
+    } else {
+        Err(AuthError::UsernameTaken(credentials.username).into())
+    }
 }
 
 /// Logs into user account.

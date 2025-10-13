@@ -50,7 +50,7 @@ impl UserService {
     /// Creates an account with comment thread and profile.
     ///
     /// Returns full profile of the created user if succeedded.
-    pub async fn create_user(&self, username: String, password: String) -> Option<FullProfileDto> {
+    pub async fn create_user(&self, username: String, password_hash: String) -> Option<FullProfileDto> {
         let user_id = snowflake();
         let thread_id = snowflake();
 
@@ -62,7 +62,7 @@ impl UserService {
                 entity::User {
                     id: user_id,
                     username: username.clone(),
-                    password,
+                    password_hash,
                     flags: BitVec::from_elem(2, false),
                 },
             )

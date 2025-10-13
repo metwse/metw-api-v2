@@ -15,7 +15,7 @@ impl UserRepository {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, password, flags
+                r#"SELECT id, username, password_hash, flags
                 FROM users
                 WHERE id = $1"#,
             )
@@ -27,7 +27,7 @@ impl UserRepository {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, password, flags
+                r#"SELECT id, username, password_hash, flags
                 FROM users
                 WHERE username = $1::varchar"#,
             )
@@ -63,13 +63,13 @@ impl UserRepository {
         unwrap_execute!(
             &mut **tx,
             sqlx::query(
-                r#"INSERT INTO users (id, username, password, flags)
+                r#"INSERT INTO users (id, username, password_hash, flags)
                     VALUES
                 ($1, $2, $3, $4)"#,
             )
             .bind(user.id)
             .bind(user.username)
-            .bind(user.password)
+            .bind(user.password_hash)
             .bind(user.flags)
         )?;
 
@@ -135,7 +135,7 @@ mod tests {
         let user_id = snowflake();
         let thread_id = snowflake();
         let username = format!("{}", snowflake());
-        let password = format!("{}", snowflake());
+        let password_hash = format!("{}", snowflake());
         let bio = format!("{}", snowflake());
 
         repo.create_user(
@@ -143,7 +143,7 @@ mod tests {
             entity::User {
                 id: user_id,
                 username: username.clone(),
-                password: password.clone(),
+                password_hash: password_hash.clone(),
                 flags: BitVec::from_elem(2, false),
             },
         )

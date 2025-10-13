@@ -12,7 +12,7 @@ use utoipa::ToSchema;
 pub type AppResult<T> = Result<AppOk<T>, AppError>;
 
 /// Indicates successful API response
-pub struct AppOk<T>(T);
+pub struct AppOk<T>(pub T);
 
 /// Application level error reporting
 #[derive(Debug, Error, Serialize, ToSchema)]
@@ -36,6 +36,24 @@ pub struct AppErrorDto {
     pub r#type: AppError,
 }
 
+impl<T> From<AppOk<T>> for AppResult<T> {
+    fn from(value: AppOk<T>) -> Self {
+        Ok(value)
+    }
+}
+
+impl<T: Serialize> IntoResponse for AppOk<T> {
+    fn into_response(self) -> Response {
+        Json(self.0).into_response()
+    }
+}
+
+impl<T> From<AppError> for AppResult<T> {
+    fn from(value: AppError) -> Self {
+        Err(value)
+    }
+}
+
 impl AppError {
     /// HTTP status code of the error
     pub fn status_code(&self) -> StatusCode {
@@ -52,12 +70,6 @@ impl AppError {
             message: self.to_string(),
             r#type: self,
         }
-    }
-}
-
-impl<T: Serialize> IntoResponse for AppOk<T> {
-    fn into_response(self) -> Response {
-        Json(self.0).into_response()
     }
 }
 

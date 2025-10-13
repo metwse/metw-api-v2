@@ -2,7 +2,7 @@
 --
 -- ID's from 1001 to 1020 are for users
 -- ------------------------------------------------
-INSERT INTO users (id, username, password, flags)
+INSERT INTO users (id, username, password_hash, flags)
 VALUES
     (1001, 'user01', 'argon2passwd', b'00'),
     (1002, 'user02', 'argon2passwd', b'00'),

@@ -8,7 +8,7 @@ pub struct User {
     /// Username
     pub username: String,
     /// Argon2-hashed password
-    pub password: String,
+    pub password_hash: String,
     /// Bitset for administrative user flags
     pub flags: BitVec,
 }

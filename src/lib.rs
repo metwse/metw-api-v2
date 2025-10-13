@@ -48,9 +48,9 @@ use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 lazy_static::lazy_static! {
     /// Year zero of metw.cc.
     ///
-    /// 2022 Aug 12, 00:00:00
+    /// 2022 Aug 12, 00:00:00 (`1660262400000`)
     pub static ref EPOCH: u64 = NaiveDateTime::new(
         NaiveDate::from_ymd_opt(2022, 8, 12).unwrap(),
         NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
-    ).and_utc().timestamp() as u64;
+    ).and_utc().timestamp_millis() as u64;
 }

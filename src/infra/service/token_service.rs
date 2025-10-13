@@ -1,7 +1,7 @@
 use crate::{state::Redis, util::timestamp};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use redis::AsyncCommands;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::marker::PhantomData;
 
 /// 90 days
@@ -31,6 +31,20 @@ impl WebToken for AuthToken {
 
     fn iat(&self) -> u64 {
         self.iat
+    }
+}
+
+impl AuthToken {
+    /// Creates a new authentication token
+    pub fn new(id: i64, username: String) -> Self {
+        let iat = timestamp();
+
+        AuthToken {
+            id,
+            username,
+            iat,
+            exp: iat + AUTH_TOKEN_TTL,
+        }
     }
 }
 

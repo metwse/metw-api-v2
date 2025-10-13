@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use super::user::FullProfileDto;
 
 api_errors!(
     AuthError,
@@ -42,4 +43,15 @@ pub struct AuthUserDto {
 pub struct TokenDto {
     /// JSON Web Token
     pub token: String,
+}
+
+/// Account token with full profile
+///
+/// Returned after an account registration.
+#[derive(Serialize, ToSchema)]
+pub struct AccountCreationDto {
+    /// JSON Web Token
+    pub token: String,
+    /// User's profile
+    pub user: FullProfileDto,
 }
