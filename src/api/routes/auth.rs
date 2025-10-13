@@ -1,6 +1,6 @@
 use crate::{
     AppState,
-    dto::auth::{AuthUserDto, AuthError, TokenDto},
+    dto::auth::{AuthError, AuthUserDto, TokenDto},
     handlers::auth_handler as auth,
 };
 use axum::{Router, routing::post};

@@ -84,10 +84,10 @@ macro_rules! api_errors_impl {
             })*
         ]
     )) => {
-        #[doc = stringify!($error_name)]
-        #[doc = "error types"]
         #[allow(missing_docs)]
         #[derive(Debug, thiserror::Error, utoipa::ToSchema, serde::Serialize)]
+        #[doc = stringify!($error_name)]
+        #[doc = "error types"]
         pub enum $error_name { $($(
             #[error($str)]
             $variant_name $( $($fields)* )?,

@@ -1,3 +1,4 @@
+use crate::dto::auth::AuthError;
 use axum::{
     Json,
     http::StatusCode,
@@ -6,7 +7,6 @@ use axum::{
 use serde::Serialize;
 use thiserror::Error;
 use utoipa::ToSchema;
-use crate::dto::auth::AuthError;
 
 /// Result of a API handler
 pub type AppResult<T> = Result<AppOk<T>, AppError>;

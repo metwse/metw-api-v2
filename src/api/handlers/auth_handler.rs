@@ -1,7 +1,9 @@
 use crate::{
-    dto::auth::{AuthUserDto, AuthError, TokenDto, error_examples},
+    dto::auth::{error_examples, AuthError, AuthUserDto, TokenDto},
     response::AppResult,
+    AppState,
 };
+use axum::{extract::State, Json};
 
 /// Register a new account.
 ///
@@ -17,8 +19,21 @@ use crate::{
         error_examples::InappropriatePasswordOrUsernameDto,
     ),
 )]
-pub async fn register() -> AppResult<TokenDto> {
-    Err(AuthError::RegistrationRejected.into())
+pub async fn register(
+    state: State<AppState>,
+    Json(credentials): Json<AuthUserDto>,
+) -> AppResult<TokenDto> {
+    if !state.config.allow_account_creation {
+        return Err(AuthError::RegistrationRejected.into());
+    }
+
+    match credentials.username.len() {
+        3..=20 => (),
+        v if v < 3 => return Err(AuthError::UsernameTooShort.into()),
+        _ => return Err(AuthError::UsernameTooLong.into()),
+    };
+
+    todo!()
 }
 
 /// Logs into user account.

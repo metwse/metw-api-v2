@@ -13,19 +13,17 @@ api_errors!(
             status = BAD_REQUEST,
             description = "Could not create an account with provided password and username.",
             variants = (
-                UsernameTooShort = "Username is too short.",
-                UsernameTaken((String)) = "Username {0} has been taken." ((String::from("example"))),
-                UsernameTooLong = "Username is too long.",
+                UsernameTooShort = "Username cannot contain less than 3 characters.",
+                UsernameTaken((String)) = "Username {0} has been taken."((String::from("example"))),
+                UsernameTooLong = "Username cannot contain more than 20 characters.",
+                UsernameRejected = "Username contains inappropriate characters.",
                 PasswordRejected = "Invalid password.",
             )
         ),
         InvalidCredentials = (
             status = UNAUTHORIZED,
             description = "The username or password you entered is incorrect.",
-            variants = (
-                UserNotFound((String)) = "User {0} has not found." ((String::from("example"))),
-                InvalidPassword = "Invalid password.",
-            )
+            variants = (InvalidCredentials = "Provided username or password is incorrect",)
         ),
     )
 );
