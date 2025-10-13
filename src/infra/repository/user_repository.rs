@@ -1,4 +1,5 @@
 use crate::{dto::user::FullProfileDto, entity, state::Database};
+use sqlx::PgTransaction;
 
 /// User data access repository
 pub struct UserRepository {
@@ -6,12 +7,10 @@ pub struct UserRepository {
 }
 
 impl UserRepository {
-    /// Creates a new repository instance.
     pub fn new(db: Database) -> Self {
         Self { db }
     }
 
-    /// Finds an user from its ID.
     pub async fn get_user_by_id(&self, id: i64) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
@@ -24,7 +23,6 @@ impl UserRepository {
         )
     }
 
-    /// Finds an user from its username.
     pub async fn get_user_by_username(&self, username: &str) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
@@ -37,7 +35,6 @@ impl UserRepository {
         )
     }
 
-    /// Fetches user's profile from its ID.
     pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
         unwrap_fetch_one!(
             &self.db.pool(),
@@ -50,7 +47,6 @@ impl UserRepository {
         )
     }
 
-    /// Fetches user's full profile from its ID.
     pub async fn get_full_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
@@ -62,13 +58,53 @@ impl UserRepository {
             .bind(user_id)
         )
     }
+
+    pub async fn create_user(&self, tx: &mut PgTransaction<'_>, user: entity::User) -> Option<()> {
+        unwrap_execute!(
+            &mut **tx,
+            sqlx::query(
+                r#"INSERT INTO users (id, username, password, flags)
+                    VALUES
+                ($1, $2, $3, $4)"#,
+            )
+            .bind(user.id)
+            .bind(user.username)
+            .bind(user.password)
+            .bind(user.flags)
+        )?;
+
+        Some(())
+    }
+
+    pub async fn create_profile(
+        &self,
+        tx: &mut PgTransaction<'_>,
+        profile: entity::Profile,
+    ) -> Option<()> {
+        unwrap_execute!(
+            &mut **tx,
+            sqlx::query(
+                r#"INSERT INTO profiles (user_id, comments_thread_id, avatar_id, banner_id, bio)
+                    VALUES
+                ($1, $2, $3, $4, $5)"#,
+            )
+            .bind(profile.user_id)
+            .bind(profile.comments_thread_id)
+            .bind(profile.avatar_id)
+            .bind(profile.banner_id)
+            .bind(profile.bio)
+        )?;
+
+        Some(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testutil::test_db;
+    use crate::{repository::ThreadRepository, snowflake, testutil::test_db};
     use serial_test::serial;
+    use sqlx::types::BitVec;
 
     #[serial]
     #[tokio::test]
@@ -85,5 +121,59 @@ mod tests {
         }
 
         assert!(repo.get_user_by_id(999).await.is_none());
+    }
+
+    #[serial]
+    #[tokio::test]
+    async fn account_creation() {
+        let db = test_db().await;
+        let repo = UserRepository::new(db.clone());
+        let thread_repo = ThreadRepository::new(db.clone());
+
+        let mut tx = db.pool().begin().await.unwrap();
+
+        let user_id = snowflake();
+        let thread_id = snowflake();
+        let username = format!("{}", snowflake());
+        let password = format!("{}", snowflake());
+        let bio = format!("{}", snowflake());
+
+        repo.create_user(
+            &mut tx,
+            entity::User {
+                id: user_id,
+                username: username.clone(),
+                password: password.clone(),
+                flags: BitVec::from_elem(2, false),
+            },
+        )
+        .await
+        .unwrap();
+
+        thread_repo
+            .create_thread(
+                &mut tx,
+                entity::Thread {
+                    id: thread_id,
+                    user_id,
+                },
+            )
+            .await
+            .unwrap();
+
+        repo.create_profile(
+            &mut tx,
+            entity::Profile {
+                user_id,
+                comments_thread_id: thread_id,
+                avatar_id: None,
+                banner_id: None,
+                bio: bio.clone(),
+            },
+        )
+        .await
+        .unwrap();
+
+        tx.commit().await.unwrap();
     }
 }

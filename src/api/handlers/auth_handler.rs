@@ -1,9 +1,9 @@
 use crate::{
-    dto::auth::{error_examples, AuthError, AuthUserDto, TokenDto},
-    response::AppResult,
     AppState,
+    dto::auth::{AuthError, AuthUserDto, TokenDto, error_examples},
+    response::AppResult,
 };
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 
 /// Register a new account.
 ///

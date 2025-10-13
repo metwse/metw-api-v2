@@ -10,7 +10,7 @@ pub struct Config {
     /// Secret for signing JWTs
     pub jwt_secret: String,
     /// Whether or not to allow account registrations.
-    pub allow_account_creation: bool
+    pub allow_account_creation: bool,
 }
 
 impl Config {

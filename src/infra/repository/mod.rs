@@ -1,3 +1,15 @@
+macro_rules! unwrap_execute {
+    ($db:expr, $query:expr) => {
+        match $query.execute($db).await {
+            Ok(data) => Some(data),
+            Err(err) => {
+                tracing::error!(?err, "Unexcepted sqlx error");
+                None
+            }
+        }
+    };
+}
+
 macro_rules! unwrap_fetch_one {
     ($db:expr, $query:expr) => {
         match $query.fetch_one($db).await {
@@ -25,10 +37,15 @@ macro_rules! unwrap_fetch_all {
     };
 }
 
+#[allow(missing_docs)]
 mod user_repository;
 
+#[allow(missing_docs)]
 mod post_repository;
 
-pub use user_repository::UserRepository;
+#[allow(missing_docs)]
+mod thread_repository;
 
 pub use post_repository::PostRepository;
+pub use thread_repository::ThreadRepository;
+pub use user_repository::UserRepository;

@@ -6,12 +6,10 @@ pub struct PostRepository {
 }
 
 impl PostRepository {
-    /// Creates a new repository instance.
     pub fn new(db: Database) -> Self {
         Self { db }
     }
 
-    /// Finds a post from its ID.
     pub async fn get_post_by_id(&self, id: i64) -> Option<entity::Post> {
         unwrap_fetch_one!(
             &self.db.pool(),
@@ -24,7 +22,6 @@ impl PostRepository {
         )
     }
 
-    /// Fetches posts of given thread ID.
     pub async fn get_posts_of_thread_id(
         &self,
         thread_id: Option<i64>,

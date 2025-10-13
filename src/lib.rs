@@ -27,9 +27,11 @@ pub mod util;
 /// API response
 pub mod response;
 
-mod infra;
+/// Service and repository implementations
+pub mod infra;
 
-mod api;
+/// Routes and their handlers
+pub mod api;
 
 /// Test helpers
 #[cfg(test)]
@@ -38,8 +40,8 @@ pub mod testutil;
 pub use app::create_router;
 pub use state::{AppState, Config};
 
-pub use api::*;
-pub use infra::*;
+pub use api::{handlers, routes};
+pub use infra::{repository, service};
 
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 

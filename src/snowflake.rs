@@ -2,23 +2,23 @@ use crate::EPOCH;
 use chrono::Utc;
 use std::{sync::Mutex, time::Duration};
 
-static LAST_OVERFLOW: Mutex<u64> = Mutex::new(0);
-static INCREMENT_MAX: u64 = 2u64.pow(12);
+static LAST_OVERFLOW: Mutex<i64> = Mutex::new(0);
+static INCREMENT_MAX: i64 = 2i64.pow(12);
 
-static INCREMENT: Mutex<u64> = Mutex::new(0);
+static INCREMENT: Mutex<i64> = Mutex::new(0);
 
 /// UUID generator inspired from Twitter's snowflake format.
 ///
 /// | Field | Bits | Description |
 /// | -- | -- | -- |
-/// | Increment | 52 to 63 | For every ID that is generated, this number is incremented |
-/// | Reserved for future use | 51 to 42 | |
-/// | Timestamp | 41 to 0 | Milliseconds since metw.cc [`EPOCH`] |
-pub fn snowflake() -> u64 {
-    let timestamp = Utc::now().timestamp_millis() as u64 - *EPOCH;
+/// | Timestamp | 22 to 63 | Milliseconds since metw.cc [`EPOCH`] |
+/// | Reserved for future use | 12 to 21 | |
+/// | Increment | 0 to 11 | For every ID that is generated, this number is incremented |
+pub fn snowflake() -> i64 {
+    let timestamp = Utc::now().timestamp_millis() - *EPOCH as i64;
 
     // Ensure the time is not yet May 15 2109 07:35:11
-    assert!(timestamp < 2u64.pow(42) - 1);
+    assert!(timestamp < 2i64.pow(42) - 1);
 
     let mut increment = INCREMENT.lock().unwrap();
     let mut last_overflow = LAST_OVERFLOW.lock().unwrap();
@@ -38,7 +38,7 @@ pub fn snowflake() -> u64 {
         }
     }
 
-    timestamp | (*increment << 52)
+    (timestamp << 22) | *increment
 }
 
 #[cfg(test)]

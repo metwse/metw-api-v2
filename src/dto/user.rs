@@ -10,7 +10,7 @@ pub struct FullProfileDto {
     /// Bitset for administrative user flags
     pub flags: BitVec,
     /// A thread id for comments on user's wall
-    pub comments_thread_id: Option<i64>,
+    pub comments_thread_id: i64,
     /// Attachment id for user's avatar
     pub avatar_id: Option<i64>,
     /// Attachment id for user's banner
