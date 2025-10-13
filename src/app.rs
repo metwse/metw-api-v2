@@ -22,12 +22,12 @@ struct ApiStatus {
     components(schemas(ApiStatus, AppErrorDto)),
     tags(
         (name = "default", description = "Miscellaneous uncategorized API endpoints"),
-        (name = "gateway", description = "User authentication endpoints"),
+        (name = "auth", description = "User authentication endpoints"),
         (name = "posts", description = "Post/thread API"),
         (name = "users", description = "User API"),
     ),
     nest(
-        (path = "/gateway", api = routes::GatewayApiDoc),
+        (path = "/auth", api = routes::AuthApiDoc),
         (path = "/posts", api = routes::PostsApiDoc),
         (path = "/users", api = routes::UsersApiDoc),
     ),
@@ -75,7 +75,7 @@ pub async fn create_router(state: AppState) -> Router {
         .route("/", get(status))
         .route("/openapi.json", get(openapi))
         .with_state(state.clone())
-        .nest("/gateway", routes::gateway_routes(state.clone()))
+        .nest("/auth", routes::auth_routes(state.clone()))
         .nest("/users", routes::user_routes(state.clone()))
         .nest("/posts", routes::post_routes(state.clone()))
 }

@@ -1,5 +1,5 @@
 use crate::{
-    dto::gateway::{AuthUserDto, GatewayError, TokenDto, error_examples},
+    dto::auth::{AuthUserDto, AuthError, TokenDto, error_examples},
     response::AppResult,
 };
 
@@ -17,8 +17,8 @@ use crate::{
         error_examples::InappropriatePasswordOrUsernameDto,
     ),
 )]
-pub async fn create_user() -> AppResult<TokenDto> {
-    Err(GatewayError::AccountCreationDisabled.into())
+pub async fn register() -> AppResult<TokenDto> {
+    Err(AuthError::AccountCreationDisabled.into())
 }
 
 /// Logs into user account.

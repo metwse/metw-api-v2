@@ -104,11 +104,8 @@ macro_rules! api_errors {
     }};
 }
 
-/// Gateway-spesific error types.
-pub enum GatewayError {}
-
-/// Gateway DTOs
-pub mod gateway;
+/// Auth DTOs
+pub mod auth;
 
 /// User DTOs
 pub mod user;

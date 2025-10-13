@@ -6,8 +6,7 @@ use axum::{
 use serde::Serialize;
 use thiserror::Error;
 use utoipa::ToSchema;
-
-use crate::dto::gateway::GatewayError;
+use crate::dto::auth::AuthError;
 
 /// Result of a API handler
 pub type AppResult<T> = Result<AppOk<T>, AppError>;
@@ -18,12 +17,12 @@ pub struct AppOk<T>(T);
 /// Application level error reporting
 #[derive(Debug, Error, Serialize, ToSchema)]
 pub enum AppError {
-    /// Unknow error
-    #[error("internal server error")]
+    /// Unknown error
+    #[error("Internal server error.")]
     InternalServerError,
-    /// /gateway error types.
-    #[error("gateway error: {0}")]
-    GatewayError(#[from] GatewayError),
+    /// /auth error types.
+    #[error("Authentication error: {0}")]
+    AuthError(#[from] AuthError),
 }
 
 /// Error sent back to clients
@@ -42,7 +41,7 @@ impl AppError {
     pub fn status_code(&self) -> StatusCode {
         match self {
             AppError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::GatewayError(err) => err.into(),
+            AppError::AuthError(err) => err.into(),
         }
     }
 

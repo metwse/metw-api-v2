@@ -1,9 +1,9 @@
-mod gateway;
+mod auth;
 
 mod posts;
 
 mod users;
 
-pub use gateway::*;
+pub use auth::*;
 pub use posts::*;
 pub use users::*;
