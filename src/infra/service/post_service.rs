@@ -22,7 +22,7 @@ impl PostService {
     pub async fn get_posts_of_thread_id(
         &self,
         thread_id: Option<i64>,
-        limit: u64,
+        limit: Option<u64>,
         before: Option<i64>,
     ) -> Vec<entity::Post> {
         self.repo

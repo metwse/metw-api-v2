@@ -9,8 +9,8 @@ pub use database::Database;
 pub use redis::Redis;
 
 use crate::service::{
-    token_service::{new_auth_token_service, AuthToken, TokenService},
     PostService, UserService,
+    token_service::{AuthToken, TokenService, new_auth_token_service},
 };
 use std::sync::Arc;
 

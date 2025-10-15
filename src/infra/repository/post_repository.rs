@@ -25,10 +25,10 @@ impl PostRepository {
     pub async fn get_posts_of_thread_id(
         &self,
         thread_id: Option<i64>,
-        limit: u64,
+        limit: Option<u64>,
         before: Option<i64>,
     ) -> Vec<entity::Post> {
-        let limit = std::cmp::min(limit, 32) as i64;
+        let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
         let before = if let Some(before) = before {
             before
         } else {
@@ -75,13 +75,13 @@ mod tests {
             repo.get_post_by_id(i + 4000).await.unwrap();
         }
 
-        let posts = repo.get_posts_of_thread_id(None, 10, None).await;
+        let posts = repo.get_posts_of_thread_id(None, Some(10), None).await;
 
         for i in 1..=10i64 {
             assert_eq!(posts[i as usize - 1].id, 4021 - i);
         }
 
-        let posts = repo.get_posts_of_thread_id(None, 5, Some(4011)).await;
+        let posts = repo.get_posts_of_thread_id(None, Some(5), Some(4011)).await;
 
         for i in 1..=5i64 {
             assert_eq!(posts[i as usize - 1].id, 4011 - i);
