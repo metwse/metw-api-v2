@@ -10,6 +10,6 @@ pub struct PostsApiDoc;
 /// Posts routes
 pub fn post_routes(state: AppState) -> Router {
     Router::new()
-        .route("/", get(posts::get_post_by_id))
+        .route("/{id}", get(posts::get_post_by_id))
         .with_state(state)
 }

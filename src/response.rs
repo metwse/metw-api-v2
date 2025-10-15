@@ -1,8 +1,8 @@
-use crate::dto::auth::AuthError;
+use crate::dto::{auth::AuthError, posts::PostError};
 use axum::{
-    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
+    Json,
 };
 use serde::Serialize;
 use thiserror::Error;
@@ -17,12 +17,15 @@ pub struct AppOk<T>(pub T);
 /// Application level error reporting
 #[derive(Debug, Error, Serialize, ToSchema)]
 pub enum AppError {
-    /// Unknown error
+    /// Unknown erro
     #[error("Internal server error.")]
     InternalServerError,
     /// /auth error types.
     #[error("Authentication error: {0}")]
     AuthError(#[from] AuthError),
+    /// /posts error types.
+    #[error("Post error: {0}")]
+    PostError(#[from] PostError),
 }
 
 /// Error sent back to clients
@@ -60,6 +63,7 @@ impl AppError {
         match self {
             AppError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::AuthError(err) => err.into(),
+            AppError::PostError(err) => err.into(),
         }
     }
 

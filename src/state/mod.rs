@@ -9,8 +9,8 @@ pub use database::Database;
 pub use redis::Redis;
 
 use crate::service::{
-    UserService,
-    token_service::{AuthToken, TokenService, new_auth_token_service},
+    token_service::{new_auth_token_service, AuthToken, TokenService},
+    PostService, UserService,
 };
 use std::sync::Arc;
 
@@ -23,6 +23,8 @@ pub struct AppState {
     pub auth_token_service: Arc<TokenService<AuthToken>>,
     /// User service
     pub user_service: Arc<UserService>,
+    /// Post service
+    pub post_service: Arc<PostService>,
 }
 
 /// Initializing database connections, builds app state.
@@ -32,7 +34,8 @@ pub async fn bootstrap(config: Config) -> AppState {
 
     AppState {
         auth_token_service: Arc::new(new_auth_token_service(redis, &config.jwt_secret)),
-        user_service: Arc::new(UserService::new(db)),
+        user_service: Arc::new(UserService::new(db.clone())),
+        post_service: Arc::new(PostService::new(db)),
         config: Arc::new(config),
     }
 }

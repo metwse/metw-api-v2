@@ -42,3 +42,21 @@ impl ThreadRepository {
         Some(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::testutil::test_db;
+    use serial_test::serial;
+
+    #[serial]
+    #[tokio::test]
+    async fn queries() {
+        let repo = ThreadRepository::new(test_db().await);
+
+        for i in 1..=20 {
+            repo.get_thread_by_id(i + 2000).await.unwrap();
+            repo.get_thread_by_id(i + 3000).await.unwrap();
+        }
+    }
+}

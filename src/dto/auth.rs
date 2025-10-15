@@ -43,8 +43,6 @@ lazy_static!(
 #[derive(Deserialize, ToSchema, Validate)]
 pub struct AuthUserDto {
     /// Username
-    ///
-    /// ATTENTION: [`Validate`] implementation does not checks username length.
     #[validate(regex(path = *USERNAME_REGEX), length(min = 2, max = 20))]
     pub username: String,
     /// Password

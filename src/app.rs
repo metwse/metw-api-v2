@@ -50,7 +50,8 @@ lazy_static! {
     get,
     path = "/",
     responses(
-        (status = OK, description = "Application status", body = ApiStatus)
+        (status = OK, description = "Application status", body = ApiStatus),
+        (status = INTERNAL_SERVER_ERROR, description = "Internal server error", body = AppErrorDto)
     ),
     tag = "default"
 )]
