@@ -1,6 +1,6 @@
+use super::user::FullProfileDto;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
-use super::user::FullProfileDto;
 
 api_errors!(
     AuthError,

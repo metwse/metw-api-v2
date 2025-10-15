@@ -4,6 +4,7 @@ use crate::{
     repository::{ThreadRepository, UserRepository},
     snowflake,
     state::Database,
+    util::{argon2_hash, argon2_verify},
 };
 use sqlx::types::BitVec;
 
@@ -47,10 +48,30 @@ impl UserService {
         self.repo.get_full_profile_by_user_id(user_id).await
     }
 
+    /// Checks user's password.
+    pub async fn validate_password_of_user_id(&self, user_id: i64, password: String) -> bool {
+        if let Some(password_hash) = self.repo.get_user_password_hash_by_user_id(user_id).await {
+            argon2_verify(password, password_hash).await
+        } else {
+            false
+        }
+    }
+
+    /// Checks user's password, with username.
+    pub async fn validate_password_of_username(&self, username: &str, password: String) -> bool {
+        if let Some(password_hash) = self.repo.get_user_password_hash_by_username(username).await {
+            argon2_verify(password, password_hash).await
+        } else {
+            false
+        }
+    }
+
     /// Creates an account with comment thread and profile.
     ///
     /// Returns full profile of the created user if succeedded.
-    pub async fn create_user(&self, username: String, password_hash: String) -> Option<FullProfileDto> {
+    pub async fn create_user(&self, username: String, password: String) -> Option<FullProfileDto> {
+        let password_hash = argon2_hash(password).await?;
+
         let user_id = snowflake();
         let thread_id = snowflake();
 
@@ -62,9 +83,9 @@ impl UserService {
                 entity::User {
                     id: user_id,
                     username: username.clone(),
-                    password_hash,
                     flags: BitVec::from_elem(2, false),
                 },
+                password_hash,
             )
             .await?;
 
@@ -117,14 +138,27 @@ mod tests {
         let db = test_db().await;
         let service = UserService::new(db);
 
+        let username = format!("{}", snowflake());
+        let password = format!("{}", snowflake());
         let user = service
-            .create_user(format!("{}", snowflake()), format!("{}", snowflake()))
+            .create_user(username.clone(), password.clone())
             .await
             .unwrap();
 
         service.get_user_by_id(user.id).await.unwrap();
-        service.get_user_by_username(&user.username).await.unwrap();
+        service.get_user_by_username(&username).await.unwrap();
         service.get_profile_by_user_id(user.id).await.unwrap();
         service.get_full_profile_by_user_id(user.id).await.unwrap();
+
+        assert!(
+            service
+                .validate_password_of_user_id(user.id, password.clone())
+                .await
+        );
+        assert!(
+            service
+                .validate_password_of_username(&username, password)
+                .await
+        );
     }
 }

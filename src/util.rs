@@ -1,8 +1,9 @@
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString},
     Argon2, PasswordHash,
+    password_hash::{PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 use std::time::{SystemTime, UNIX_EPOCH};
+use tracing::instrument;
 
 /// Unix timestamp as u64.
 pub fn timestamp() -> u64 {
@@ -13,17 +14,18 @@ pub fn timestamp() -> u64 {
 }
 
 /// Runs argon2 password hashing function in blocking thread.
+#[instrument]
 pub async fn argon2_hash(password: String) -> Option<String> {
     tokio::task::spawn_blocking(move || -> Option<String> {
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
 
-        Some(
-            argon2
-                .hash_password(password.as_bytes(), &salt)
-                .ok()?
-                .to_string(),
-        )
+        if let Ok(password_hash) = argon2.hash_password(password.as_bytes(), &salt) {
+            Some(password_hash.to_string())
+        } else {
+            tracing::error!(password, "Unexpected Argon2 hashing failure");
+            None
+        }
     })
     .await
     .unwrap()

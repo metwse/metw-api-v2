@@ -15,7 +15,7 @@ impl UserRepository {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, password_hash, flags
+                r#"SELECT id, username, flags
                 FROM users
                 WHERE id = $1"#,
             )
@@ -27,7 +27,7 @@ impl UserRepository {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, password_hash, flags
+                r#"SELECT id, username, flags
                 FROM users
                 WHERE username = $1::varchar"#,
             )
@@ -59,7 +59,30 @@ impl UserRepository {
         )
     }
 
-    pub async fn create_user(&self, tx: &mut PgTransaction<'_>, user: entity::User) -> Option<()> {
+    pub async fn get_user_password_hash_by_user_id(&self, id: i64) -> Option<String> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as::<_, (String,)>("SELECT password_hash FROM users WHERE id = $1")
+                .bind(id)
+        )
+        .map(|row| row.0)
+    }
+
+    pub async fn get_user_password_hash_by_username(&self, username: &str) -> Option<String> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as::<_, (String,)>("SELECT password_hash FROM users WHERE username = $1")
+                .bind(username)
+        )
+        .map(|row| row.0)
+    }
+
+    pub async fn create_user(
+        &self,
+        tx: &mut PgTransaction<'_>,
+        user: entity::User,
+        password_hash: String,
+    ) -> Option<()> {
         unwrap_execute!(
             &mut **tx,
             sqlx::query(
@@ -69,7 +92,7 @@ impl UserRepository {
             )
             .bind(user.id)
             .bind(user.username)
-            .bind(user.password_hash)
+            .bind(password_hash)
             .bind(user.flags)
         )?;
 
@@ -143,9 +166,9 @@ mod tests {
             entity::User {
                 id: user_id,
                 username: username.clone(),
-                password_hash: password_hash.clone(),
                 flags: BitVec::from_elem(2, false),
             },
+            password_hash.clone(),
         )
         .await
         .unwrap();
@@ -175,5 +198,19 @@ mod tests {
         .unwrap();
 
         tx.commit().await.unwrap();
+
+        assert_eq!(
+            repo.get_user_password_hash_by_user_id(user_id)
+                .await
+                .unwrap(),
+            password_hash.clone()
+        );
+
+        assert_eq!(
+            repo.get_user_password_hash_by_username(&username)
+                .await
+                .unwrap(),
+            password_hash.clone()
+        );
     }
 }

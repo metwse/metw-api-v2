@@ -1,7 +1,7 @@
 use crate::{state::Redis, util::timestamp};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use redis::AsyncCommands;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::marker::PhantomData;
 
 /// 90 days
