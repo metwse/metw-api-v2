@@ -35,7 +35,8 @@ impl UserRepository {
         )
     }
 
-    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
+    /// For schema validation test
+    async fn __get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::Profile>(
@@ -47,7 +48,7 @@ impl UserRepository {
         )
     }
 
-    pub async fn get_full_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
+    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, FullProfileDto>(
@@ -56,6 +57,18 @@ impl UserRepository {
                 WHERE user_id = $1"#,
             )
             .bind(user_id)
+        )
+    }
+
+    pub async fn get_profile_by_username(&self, username: &str) -> Option<FullProfileDto> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as::<_, FullProfileDto>(
+                r#"SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
+                FROM profiles LEFT JOIN users ON user_id = users.id
+                WHERE username = $1"#,
+            )
+            .bind(username)
         )
     }
 
@@ -135,12 +148,13 @@ mod tests {
         let repo = UserRepository::new(test_db().await);
 
         for i in 1..=9 {
+            let username = format!("user0{i}");
+
             repo.get_user_by_id(i + 1000).await.unwrap();
-            repo.get_user_by_username(&format!("user0{i}"))
-                .await
-                .unwrap();
+            repo.get_user_by_username(&username).await.unwrap();
+            repo.__get_profile_by_user_id(i + 1000).await.unwrap();
             repo.get_profile_by_user_id(i + 1000).await.unwrap();
-            repo.get_full_profile_by_user_id(i + 1000).await.unwrap();
+            repo.get_profile_by_username(&username).await.unwrap();
         }
 
         assert!(repo.get_user_by_id(999).await.is_none());

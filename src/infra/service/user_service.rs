@@ -39,13 +39,13 @@ impl UserService {
     }
 
     /// Fetches user's profile from its ID.
-    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
+    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
         self.repo.get_profile_by_user_id(user_id).await
     }
 
-    /// Fetches user's full profile from its ID.
-    pub async fn get_full_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
-        self.repo.get_full_profile_by_user_id(user_id).await
+    /// Fetches user's profile from its ID.
+    pub async fn get_profile_by_username(&self, username: &str) -> Option<FullProfileDto> {
+        self.repo.get_profile_by_username(username).await
     }
 
     /// Checks user's password.
@@ -148,7 +148,6 @@ mod tests {
         service.get_user_by_id(user.id).await.unwrap();
         service.get_user_by_username(&username).await.unwrap();
         service.get_profile_by_user_id(user.id).await.unwrap();
-        service.get_full_profile_by_user_id(user.id).await.unwrap();
 
         assert!(
             service
