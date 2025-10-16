@@ -16,7 +16,6 @@ static INCREMENT: Mutex<i64> = Mutex::new(0);
 /// | Increment | 0 to 11 | For every ID that is generated, this number is incremented |
 pub fn snowflake() -> i64 {
     let timestamp = Utc::now().timestamp_millis() - *EPOCH as i64;
-    tracing::trace!(timestamp);
 
     // Ensure the time is not yet May 15 2109 07:35:11
     assert!(timestamp < 2i64.pow(42) - 1);
