@@ -1,4 +1,4 @@
-use crate::dto::{auth::AuthError, posts::PostError};
+use crate::dto::{auth::AuthError, posts::PostError, user::UserError};
 use axum::{
     Json,
     http::StatusCode,
@@ -26,6 +26,9 @@ pub enum AppError {
     /// /posts error types.
     #[error("Post error: {0}")]
     PostError(#[from] PostError),
+    /// /users error types.
+    #[error("User error: {0}")]
+    UserError(#[from] UserError),
 }
 
 /// Error sent back to clients
@@ -64,6 +67,7 @@ impl AppError {
             AppError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::AuthError(err) => err.into(),
             AppError::PostError(err) => err.into(),
+            AppError::UserError(err) => err.into(),
         }
     }
 

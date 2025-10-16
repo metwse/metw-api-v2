@@ -1,13 +1,26 @@
-use crate::AppState;
-use axum::Router;
+use crate::{dto::user::FullProfileDto, entity, handlers::user_handler as users, AppState};
+use axum::{routing::get, Router};
 use utoipa::OpenApi;
 
 /// Users API documentations
 #[derive(OpenApi)]
-#[openapi()]
+#[openapi(
+    paths(
+        users::get_user_by_id,
+        users::get_user_by_username,
+        users::get_profile_by_user_id,
+        users::get_profile_by_username
+    ),
+    components(schemas(entity::User, FullProfileDto))
+)]
 pub struct UsersApiDoc;
 
 /// Users routes
 pub fn user_routes(state: AppState) -> Router {
-    Router::new().with_state(state)
+    Router::new()
+        .route("/{id}", get(users::get_user_by_id))
+        .route("/@{username}", get(users::get_user_by_username))
+        .route("/{id}/profile", get(users::get_profile_by_user_id))
+        .route("/@{username}/profile", get(users::get_profile_by_username))
+        .with_state(state)
 }

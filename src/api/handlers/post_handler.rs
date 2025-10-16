@@ -12,7 +12,7 @@ use axum::{
     extract::{Path, Query, State},
 };
 
-/// Gets post by ID.
+/// Gets a post by ID.
 ///
 /// Fethes one post from its ID.
 #[utoipa::path(
@@ -34,7 +34,7 @@ pub async fn get_post_by_id(
     }
 }
 
-/// Gets posts on main thread
+/// Gets a posts on main thread
 ///
 /// List of latest posts in main thread.
 #[utoipa::path(
@@ -57,7 +57,7 @@ pub async fn get_posts(
     )
 }
 
-/// Gets posts in a thread
+/// Gets a posts in a thread
 ///
 /// List of posts in a thread.
 #[utoipa::path(

@@ -1,13 +1,17 @@
+use serde::Serialize;
 use sqlx::{prelude::FromRow, types::BitVec};
+use utoipa::ToSchema;
 
 /// User
-#[derive(Clone, Debug, FromRow)]
+#[derive(Clone, Debug, FromRow, ToSchema, Serialize)]
 pub struct User {
     /// Unique identifier for the user
     pub id: i64,
     /// Username
     pub username: String,
     /// Bitset for administrative user flags
+    #[serde(serialize_with = "crate::util::serialize_bitvec_as_bytes")]
+    #[schema(value_type = Vec<u8>)]
     pub flags: BitVec,
 }
 
@@ -25,7 +29,7 @@ pub struct Email {
 }
 
 /// User's public profile
-#[derive(Clone, Debug, sqlx::FromRow)]
+#[derive(Clone, Debug, FromRow)]
 pub struct Profile {
     /// Id of the user that profile belongs to
     pub user_id: i64,

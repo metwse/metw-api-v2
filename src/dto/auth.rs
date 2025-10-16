@@ -43,7 +43,8 @@ lazy_static!(
 #[derive(Deserialize, ToSchema, Validate)]
 pub struct AuthUserDto {
     /// Username
-    #[validate(regex(path = *USERNAME_REGEX), length(min = 2, max = 20))]
+    // Note: 1-char usernames only allowed in login
+    #[validate(regex(path = *USERNAME_REGEX), length(min = 1, max = 20))]
     pub username: String,
     /// Password
     pub password: String,
@@ -61,8 +62,8 @@ pub struct TokenDto {
 #[cfg(test)]
 #[test]
 fn username_validation() {
-    let valid_usernames = ["aa", "12345678901234567890", "a-a", "a_a", "a-b-c"];
-    let invalid_usernames = ["_a", "a", "123456789012345678901", "!!", "a_"];
+    let valid_usernames = ["aa", "a", "12345678901234567890", "a-a", "a_a", "a-b-c"];
+    let invalid_usernames = ["_a", "123456789012345678901", "!!", "a_"];
 
     for username in valid_usernames {
         AuthUserDto {
