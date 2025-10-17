@@ -2,7 +2,7 @@ use argon2::{
     Argon2, PasswordHash,
     password_hash::{PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
-use serde::{Serializer, Serialize};
+use serde::{Serialize, Serializer};
 use sqlx::types::BitVec;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::instrument;
@@ -62,8 +62,10 @@ mod tests {
     }
 }
 
-
-pub(crate) fn serialize_bitvec_as_bytes<S>(bitvec: &BitVec, serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn serialize_bitvec_as_bytes<S>(
+    bitvec: &BitVec,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {

@@ -1,5 +1,5 @@
-use crate::{dto::user::FullProfileDto, entity, handlers::user_handler as users, AppState};
-use axum::{routing::get, Router};
+use crate::{AppState, dto::user::FullProfileDto, entity, handlers::user_handler as users};
+use axum::{Router, routing::get};
 use utoipa::OpenApi;
 
 /// Users API documentations

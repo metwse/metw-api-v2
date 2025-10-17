@@ -34,18 +34,41 @@ pub async fn get_post_by_id(
     }
 }
 
-/// Gets a posts on main thread
+/// Gets latest posts on the main thread
 ///
 /// List of latest posts in main thread.
 #[utoipa::path(
     get,
-    path = "/main",
+    path = "/latest",
     responses(
         (status = OK, description = "Post list", body = Vec<entity::Post>),
     ),
     params(PagitationQuery)
 )]
-pub async fn get_posts(
+pub async fn get_latest_posts(
+    State(state): State<AppState>,
+    Query(pagitation): Query<PagitationQuery>,
+) -> Json<Vec<entity::Post>> {
+    Json(
+        state
+            .post_service
+            .get_posts_of_thread_id(None, pagitation.limit, pagitation.before)
+            .await,
+    )
+}
+
+/// Gets hot posts on the main thread
+///
+/// List of hot posts in main thread.
+#[utoipa::path(
+    get,
+    path = "/hot",
+    responses(
+        (status = OK, description = "Post list", body = Vec<entity::Post>),
+    ),
+    params(PagitationQuery)
+)]
+pub async fn get_hot_posts(
     State(state): State<AppState>,
     Query(pagitation): Query<PagitationQuery>,
 ) -> Json<Vec<entity::Post>> {

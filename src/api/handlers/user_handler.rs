@@ -1,8 +1,8 @@
 use crate::{
-    dto::user::{error_examples, FullProfileDto, UserError},
+    AppState,
+    dto::user::{FullProfileDto, UserError, error_examples},
     entity,
     response::{AppOk, AppResult},
-    AppState,
 };
 use axum::extract::{Path, State};
 

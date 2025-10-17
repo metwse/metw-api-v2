@@ -58,6 +58,38 @@ impl PostRepository {
             }
         )
     }
+
+    pub async fn get_hot_posts(&self, limit: i64) -> Vec<entity::Post> {
+        unwrap_fetch_all!(
+            &self.db.pool(),
+            sqlx::query_as::<_, entity::Post>(
+                r#"WITH
+                    latest_replies AS (
+                        SELECT COUNT(1) AS reply_count, thread_id
+                        FROM posts
+                        WHERE id > snowflake_like_base_past('7 days'::interval)
+                        GROUP BY thread_id
+                    ),
+                    latest_likes AS (
+                        SELECT COUNT(post_id) AS like_count, post_id
+                        FROM relations.likes
+                        WHERE id > snowflake_like_base_past('7 days'::interval)
+                        GROUP BY post_id
+                    )
+                SELECT posts.* FROM posts
+                LEFT JOIN latest_replies
+                    ON latest_replies.thread_id = posts.replies_thread_id
+                LEFT JOIN latest_likes
+                    ON latest_likes.post_id = posts.id
+                WHERE
+                    (latest_replies.thread_id IS NOT NULL OR latest_likes.post_id IS NOT NULL) AND
+                    id > snowflake_like_base_past('30 days'::interval) AND
+                    posts.thread_id IS NULL
+                ORDER BY array_length(attachments, 1) + reply_count * 2 + like_count DESC
+                LIMIT $1"#
+            ).bind(limit)
+        )
+    }
 }
 
 #[cfg(test)]
@@ -86,5 +118,7 @@ mod tests {
         for i in 1..=5i64 {
             assert_eq!(posts[i as usize - 1].id, 4011 - i);
         }
+
+        repo.get_hot_posts(128).await;
     }
 }
