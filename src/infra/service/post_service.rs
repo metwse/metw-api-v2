@@ -1,15 +1,22 @@
-use crate::{dto::posts::PostStatsDto, entity, repository::PostRepository, state::Database};
+use crate::{
+    dto::posts::PostStatsDto,
+    entity,
+    repository::{PostRepository, ThreadRepository},
+    state::Database,
+};
 
 /// Service struct for handling post-related operations.
 pub struct PostService {
     repo: PostRepository,
+    thread_repo: ThreadRepository,
 }
 
 impl PostService {
     /// Creates a new repository instance.
     pub fn new(db: Database) -> Self {
         Self {
-            repo: PostRepository::new(db),
+            repo: PostRepository::new(db.clone()),
+            thread_repo: ThreadRepository::new(db),
         }
     }
 
@@ -30,8 +37,8 @@ impl PostService {
         limit: Option<u64>,
         before: Option<i64>,
     ) -> Vec<entity::Post> {
-        self.repo
-            .get_latest_posts_of_thread(thread_id, limit, before)
+        self.thread_repo
+            .get_latest_posts(thread_id, limit, before)
             .await
     }
 
@@ -41,8 +48,6 @@ impl PostService {
         thread_id: Option<i64>,
         time_period: Option<u64>,
     ) -> Vec<entity::Post> {
-        self.repo
-            .get_hot_posts_of_thread(thread_id, time_period)
-            .await
+        self.thread_repo.get_hot_posts(thread_id, time_period).await
     }
 }
