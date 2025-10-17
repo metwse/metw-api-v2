@@ -26,7 +26,8 @@ impl UserRepository {
                         FROM profiles WHERE user_id = id
                     )
                 FROM users WHERE id = $1"
-            }).bind(id)
+            })
+            .bind(id)
         )
     }
 
@@ -34,9 +35,7 @@ impl UserRepository {
     async fn __get_user_by_id(&self, id: i64) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as(
-                "SELECT id, username, flags FROM users WHERE id = $1"
-            ).bind(id)
+            sqlx::query_as("SELECT id, username, flags FROM users WHERE id = $1").bind(id)
         )
     }
 
@@ -50,7 +49,8 @@ impl UserRepository {
                         FROM profiles WHERE user_id = id
                     )
                 FROM users WHERE username = $1"
-            }).bind(username)
+            })
+            .bind(username)
         )
     }
 
@@ -103,13 +103,13 @@ impl UserRepository {
                     ), 0) as comments,
                     COALESCE((
                         SELECT COUNT(1) FROM relations.follows
-                        WHERE follows.user_id = profiles.user_id
-                        GROUP BY user_id
+                        WHERE follows.follower_id = profiles.user_id
+                        GROUP BY follower_id
                     ), 0) as follows,
                     COALESCE((
                         SELECT COUNT(1) FROM relations.follows
-                        WHERE follows.follower_id = profiles.user_id
-                        GROUP BY follower_id
+                        WHERE follows.user_id = profiles.user_id
+                        GROUP BY user_id
                     ), 0) as followers
                 FROM profiles WHERE user_id = $1"
             })
@@ -133,6 +133,66 @@ impl UserRepository {
                 .bind(username)
         )
         .map(|row| row.0)
+    }
+
+    pub async fn get_follows(
+        &self,
+        id: i64,
+        limit: Option<u64>,
+        before: Option<i64>,
+    ) -> Vec<UserDto> {
+        let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
+        let before = before.unwrap_or(i64::MAX);
+
+        unwrap_fetch_all!(
+            &self.db.pool(),
+            sqlx::query_as(indoc! {
+                "SELECT
+                    user_id AS id, username, flags, (
+                        SELECT avatar_id
+                        FROM profiles
+                        WHERE profiles.user_id = users.id
+                    )
+                FROM relations.follows
+                RIGHT JOIN users ON users.id = follows.user_id
+                WHERE follower_id = $1 AND user_id < $2
+                ORDER BY user_id DESC
+                LIMIT $3"
+            })
+            .bind(id)
+            .bind(before)
+            .bind(limit)
+        )
+    }
+
+    pub async fn get_followers(
+        &self,
+        id: i64,
+        limit: Option<u64>,
+        before: Option<i64>,
+    ) -> Vec<UserDto> {
+        let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
+        let before = before.unwrap_or(i64::MAX);
+
+        unwrap_fetch_all!(
+            &self.db.pool(),
+            sqlx::query_as(indoc! {
+                "SELECT
+                    follower_id AS id, username, flags, (
+                        SELECT avatar_id
+                        FROM profiles
+                        WHERE profiles.user_id = users.id
+                    )
+                FROM relations.follows
+                RIGHT JOIN users ON users.id = follows.follower_id
+                WHERE user_id = $1 AND follower_id < $2
+                ORDER BY follower_id DESC
+                LIMIT $3"
+            })
+            .bind(id)
+            .bind(before)
+            .bind(limit)
+        )
     }
 
     pub async fn create_user(
@@ -259,9 +319,7 @@ mod tests {
         tx.commit().await.unwrap();
 
         assert_eq!(
-            repo.get_user_password_hash_by_id(user_id)
-                .await
-                .unwrap(),
+            repo.get_user_password_hash_by_id(user_id).await.unwrap(),
             password_hash.clone()
         );
 

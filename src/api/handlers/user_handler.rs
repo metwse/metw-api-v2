@@ -1,7 +1,15 @@
 use crate::{
-    dto::user::{error_examples, FullProfileDto, UserDto, UserError, UserStatsDto}, response::{AppOk, AppResult}, AppState
+    dto::{
+        user::{error_examples, FullProfileDto, UserDto, UserError, UserStatsDto},
+        PagitationQuery,
+    },
+    response::{AppOk, AppResult},
+    AppState,
 };
-use axum::extract::{Path, State};
+use axum::{
+    extract::{Path, Query, State},
+    Json,
+};
 
 /// Gets an user by ID.
 ///
@@ -119,4 +127,42 @@ pub async fn get_user_stats_by_id(
     } else {
         Err(UserError::UserNotFound.into())
     }
+}
+
+/// User's follows
+///
+/// Returns list of the user's follows
+#[utoipa::path(
+    get,
+    path = "/{id}/follows",
+    responses(
+        (status = OK, description = "User list", body = Vec<UserDto>),
+    ),
+    params(PagitationQuery)
+)]
+pub async fn get_follows(
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+    Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
+) -> Json<Vec<UserDto>> {
+    Json(state.user_service.get_follows(id, limit, before).await)
+}
+
+/// User's followers
+///
+/// Returns list of the user's followers
+#[utoipa::path(
+    get,
+    path = "/{id}/followers",
+    responses(
+        (status = OK, description = "User list", body = Vec<UserDto>),
+    ),
+    params(PagitationQuery)
+)]
+pub async fn get_followers(
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+    Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
+) -> Json<Vec<UserDto>> {
+    Json(state.user_service.get_followers(id, limit, before).await)
 }

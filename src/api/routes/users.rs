@@ -11,6 +11,8 @@ use utoipa::OpenApi;
         users::get_profile_by_id,
         users::get_profile_by_username,
         users::get_user_stats_by_id,
+        users::get_follows,
+        users::get_followers,
     ),
     components(schemas(UserDto, FullProfileDto))
 )]
@@ -24,5 +26,7 @@ pub fn user_routes(state: AppState) -> Router {
         .route("/{id}/profile", get(users::get_profile_by_id))
         .route("/@{username}/profile", get(users::get_profile_by_username))
         .route("/{id}/stats", get(users::get_user_stats_by_id))
+        .route("/{id}/follows", get(users::get_follows))
+        .route("/{id}/followers", get(users::get_followers))
         .with_state(state)
 }
