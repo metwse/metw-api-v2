@@ -8,8 +8,9 @@ use utoipa::OpenApi;
     paths(
         users::get_user_by_id,
         users::get_user_by_username,
-        users::get_profile_by_user_id,
-        users::get_profile_by_username
+        users::get_profile_by_id,
+        users::get_profile_by_username,
+        users::get_user_stats_by_id,
     ),
     components(schemas(entity::User, FullProfileDto))
 )]
@@ -20,7 +21,8 @@ pub fn user_routes(state: AppState) -> Router {
     Router::new()
         .route("/{id}", get(users::get_user_by_id))
         .route("/@{username}", get(users::get_user_by_username))
-        .route("/{id}/profile", get(users::get_profile_by_user_id))
+        .route("/{id}/profile", get(users::get_profile_by_id))
         .route("/@{username}/profile", get(users::get_profile_by_username))
+        .route("/{id}/stats", get(users::get_user_stats_by_id))
         .with_state(state)
 }

@@ -1,5 +1,5 @@
 use crate::{
-    dto::user::FullProfileDto,
+    dto::user::{FullProfileDto, UserStatsDto},
     entity,
     repository::{ThreadRepository, UserRepository},
     snowflake,
@@ -39,8 +39,8 @@ impl UserService {
     }
 
     /// Fetches user's profile from its ID.
-    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
-        self.repo.get_profile_by_user_id(user_id).await
+    pub async fn get_profile_by_id(&self, user_id: i64) -> Option<FullProfileDto> {
+        self.repo.get_profile_by_id(user_id).await
     }
 
     /// Fetches user's profile from its ID.
@@ -48,9 +48,14 @@ impl UserService {
         self.repo.get_profile_by_username(username).await
     }
 
+    /// Fetches user's stats from its ID.
+    pub async fn get_user_stats_by_id(&self, id: i64) -> Option<UserStatsDto> {
+        self.repo.get_user_stats_by_id(id).await
+    }
+
     /// Checks user's password.
     pub async fn validate_password_of_user_id(&self, user_id: i64, password: String) -> bool {
-        if let Some(password_hash) = self.repo.get_user_password_hash_by_user_id(user_id).await {
+        if let Some(password_hash) = self.repo.get_user_password_hash_by_id(user_id).await {
             argon2_verify(password, password_hash).await
         } else {
             false
@@ -147,7 +152,7 @@ mod tests {
 
         service.get_user_by_id(user.id).await.unwrap();
         service.get_user_by_username(&username).await.unwrap();
-        service.get_profile_by_user_id(user.id).await.unwrap();
+        service.get_profile_by_id(user.id).await.unwrap();
 
         assert!(
             service

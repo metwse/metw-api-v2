@@ -33,3 +33,14 @@ pub struct FullProfileDto {
     /// Biography
     pub bio: String,
 }
+
+/// Stats for user profile
+#[derive(Debug, FromRow, Serialize, ToSchema)]
+pub struct UserStatsDto {
+    /// Comment count on user's wall
+    pub comments: i64,
+    /// Follower count
+    pub followers: i64,
+    /// Following count count
+    pub follows: i64,
+}

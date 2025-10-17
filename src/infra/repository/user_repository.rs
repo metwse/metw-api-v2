@@ -1,4 +1,9 @@
-use crate::{dto::user::FullProfileDto, entity, state::Database};
+use crate::{
+    dto::user::{FullProfileDto, UserStatsDto},
+    entity,
+    state::Database,
+};
+use indoc::indoc;
 use sqlx::PgTransaction;
 
 /// User data access repository
@@ -14,48 +19,43 @@ impl UserRepository {
     pub async fn get_user_by_id(&self, id: i64) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, flags
-                FROM users
-                WHERE id = $1"#,
-            )
-            .bind(id)
+            sqlx::query_as("SELECT id, username, flags FROM users WHERE id = $1").bind(id)
         )
     }
 
     pub async fn get_user_by_username(&self, username: &str) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, entity::User>(
-                r#"SELECT id, username, flags
+            sqlx::query_as::<_, entity::User>(indoc! {
+                "SELECT id, username, flags
                 FROM users
-                WHERE username = $1::varchar"#,
-            )
+                WHERE username = $1::varchar",
+            })
             .bind(username)
         )
     }
 
     /// For schema validation test
-    async fn __get_profile_by_user_id(&self, user_id: i64) -> Option<entity::Profile> {
+    async fn __get_profile_by_id(&self, user_id: i64) -> Option<entity::Profile> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, entity::Profile>(
-                r#"SELECT user_id, comments_thread_id, avatar_id, banner_id, bio
+            sqlx::query_as::<_, entity::Profile>(indoc! {
+                "SELECT user_id, comments_thread_id, avatar_id, banner_id, bio
                 FROM profiles
-                WHERE user_id = $1"#,
-            )
+                WHERE user_id = $1",
+            })
             .bind(user_id)
         )
     }
 
-    pub async fn get_profile_by_user_id(&self, user_id: i64) -> Option<FullProfileDto> {
+    pub async fn get_profile_by_id(&self, user_id: i64) -> Option<FullProfileDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, FullProfileDto>(
-                r#"SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
+            sqlx::query_as::<_, FullProfileDto>(indoc! {
+                "SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
                 FROM profiles LEFT JOIN users ON user_id = users.id
-                WHERE user_id = $1"#,
-            )
+                WHERE user_id = $1",
+            })
             .bind(user_id)
         )
     }
@@ -63,16 +63,42 @@ impl UserRepository {
     pub async fn get_profile_by_username(&self, username: &str) -> Option<FullProfileDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, FullProfileDto>(
-                r#"SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
+            sqlx::query_as::<_, FullProfileDto>(indoc! {
+                "SELECT id, username, flags, comments_thread_id, avatar_id, banner_id, bio
                 FROM profiles LEFT JOIN users ON user_id = users.id
-                WHERE username = $1"#,
-            )
+                WHERE username = $1",
+            })
             .bind(username)
         )
     }
 
-    pub async fn get_user_password_hash_by_user_id(&self, id: i64) -> Option<String> {
+    pub async fn get_user_stats_by_id(&self, id: i64) -> Option<UserStatsDto> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as(indoc! {
+                "SELECT
+                    COALESCE((
+                        SELECT COUNT(1) FROM posts
+                        WHERE thread_id = comments_thread_id
+                        GROUP BY thread_id
+                    ), 0) as comments,
+                    COALESCE((
+                        SELECT COUNT(1) FROM relations.follows
+                        WHERE follows.user_id = profiles.user_id
+                        GROUP BY user_id
+                    ), 0) as follows,
+                    COALESCE((
+                        SELECT COUNT(1) FROM relations.follows
+                        WHERE follows.follower_id = profiles.user_id
+                        GROUP BY follower_id
+                    ), 0) as followers
+                FROM profiles WHERE user_id = $1"
+            })
+            .bind(id)
+        )
+    }
+
+    pub async fn get_user_password_hash_by_id(&self, id: i64) -> Option<String> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, (String,)>("SELECT password_hash FROM users WHERE id = $1")
@@ -98,11 +124,11 @@ impl UserRepository {
     ) -> Option<()> {
         unwrap_execute!(
             &mut **tx,
-            sqlx::query(
-                r#"INSERT INTO users (id, username, password_hash, flags)
+            sqlx::query(indoc! {
+                "INSERT INTO users (id, username, password_hash, flags)
                     VALUES
-                ($1, $2, $3, $4)"#,
-            )
+                ($1, $2, $3, $4)",
+            })
             .bind(user.id)
             .bind(user.username)
             .bind(password_hash)
@@ -119,11 +145,11 @@ impl UserRepository {
     ) -> Option<()> {
         unwrap_execute!(
             &mut **tx,
-            sqlx::query(
-                r#"INSERT INTO profiles (user_id, comments_thread_id, avatar_id, banner_id, bio)
+            sqlx::query(indoc! {
+                "INSERT INTO profiles (user_id, comments_thread_id, avatar_id, banner_id, bio)
                     VALUES
-                ($1, $2, $3, $4, $5)"#,
-            )
+                ($1, $2, $3, $4, $5)",
+            })
             .bind(profile.user_id)
             .bind(profile.comments_thread_id)
             .bind(profile.avatar_id)
@@ -152,8 +178,8 @@ mod tests {
 
             repo.get_user_by_id(i + 1000).await.unwrap();
             repo.get_user_by_username(&username).await.unwrap();
-            repo.__get_profile_by_user_id(i + 1000).await.unwrap();
-            repo.get_profile_by_user_id(i + 1000).await.unwrap();
+            repo.__get_profile_by_id(i + 1000).await.unwrap();
+            repo.get_profile_by_id(i + 1000).await.unwrap();
             repo.get_profile_by_username(&username).await.unwrap();
         }
 
@@ -214,7 +240,7 @@ mod tests {
         tx.commit().await.unwrap();
 
         assert_eq!(
-            repo.get_user_password_hash_by_user_id(user_id)
+            repo.get_user_password_hash_by_id(user_id)
                 .await
                 .unwrap(),
             password_hash.clone()

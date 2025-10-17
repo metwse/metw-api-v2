@@ -23,13 +23,15 @@ struct ApiStatus {
     tags(
         (name = "default", description = "Miscellaneous uncategorized API endpoints"),
         (name = "auth", description = "User authentication endpoints"),
-        (name = "posts", description = "Post/thread API"),
+        (name = "posts", description = "Post API"),
         (name = "users", description = "User API"),
+        (name = "threads", description = "Thread API"),
     ),
     nest(
         (path = "/auth", api = routes::AuthApiDoc),
         (path = "/posts", api = routes::PostsApiDoc),
         (path = "/users", api = routes::UsersApiDoc),
+        (path = "/threads", api = routes::ThreadsApiDoc),
     ),
     servers(
         (url = "http://localhost:1186", description = "Default development server")
@@ -79,4 +81,5 @@ pub async fn create_router(state: AppState) -> Router {
         .nest("/auth", routes::auth_routes(state.clone()))
         .nest("/users", routes::user_routes(state.clone()))
         .nest("/posts", routes::post_routes(state.clone()))
+        .nest("/threads", routes::thread_routes(state.clone()))
 }

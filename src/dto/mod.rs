@@ -16,7 +16,7 @@ pub mod user;
 /// Limit and before query params.
 #[derive(Deserialize, IntoParams)]
 pub struct PagitationQuery {
-    /// Total element count
+    /// Limit of element count
     pub limit: Option<u64>,
     /// Elements before that id
     pub before: Option<i64>,

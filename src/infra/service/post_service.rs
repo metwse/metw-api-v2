@@ -1,4 +1,4 @@
-use crate::{entity, repository::PostRepository, state::Database};
+use crate::{dto::posts::PostStatsDto, entity, repository::PostRepository, state::Database};
 
 /// Service struct for handling post-related operations.
 pub struct PostService {
@@ -16,6 +16,11 @@ impl PostService {
     /// Finds a post from its ID.
     pub async fn get_post_by_id(&self, id: i64) -> Option<entity::Post> {
         self.repo.get_post_by_id(id).await
+    }
+
+    /// Fetches posts's stats from its ID.
+    pub async fn get_post_stats_by_id(&self, id: i64) -> Option<PostStatsDto> {
+        self.repo.get_post_stats_by_id(id).await
     }
 
     /// Gets the latest posts in a thread.

@@ -1,6 +1,6 @@
 use crate::{
     AppState,
-    dto::user::{FullProfileDto, UserError, error_examples},
+    dto::user::{FullProfileDto, UserError, UserStatsDto, error_examples},
     entity,
     response::{AppOk, AppResult},
 };
@@ -65,11 +65,11 @@ pub async fn get_user_by_username(
         error_examples::UserNotFoundDto
     ),
 )]
-pub async fn get_profile_by_user_id(
+pub async fn get_profile_by_id(
     State(state): State<AppState>,
     Path(id): Path<i64>,
 ) -> AppResult<FullProfileDto> {
-    if let Some(user) = state.user_service.get_profile_by_user_id(id).await {
+    if let Some(user) = state.user_service.get_profile_by_id(id).await {
         AppOk(user).into()
     } else {
         Err(UserError::UserNotFound.into())
@@ -97,6 +97,28 @@ pub async fn get_profile_by_username(
 
     if let Some(user) = state.user_service.get_profile_by_username(&username).await {
         AppOk(user).into()
+    } else {
+        Err(UserError::UserNotFound.into())
+    }
+}
+
+/// Gets an user's stats by user ID.
+///
+/// Fetches one user's stats by user ID.
+#[utoipa::path(
+    get,
+    path = "/{id}/stats",
+    responses(
+        (status = OK, description = "User stats object", body = UserStatsDto),
+        error_examples::UserNotFoundDto
+    ),
+)]
+pub async fn get_user_stats_by_id(
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> AppResult<UserStatsDto> {
+    if let Some(user_stats) = state.user_service.get_user_stats_by_id(id).await {
+        AppOk(user_stats).into()
     } else {
         Err(UserError::UserNotFound.into())
     }
