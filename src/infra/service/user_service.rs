@@ -1,5 +1,5 @@
 use crate::{
-    dto::user::{FullProfileDto, UserStatsDto},
+    dto::user::{FullProfileDto, UserDto, UserStatsDto},
     entity,
     repository::{ThreadRepository, UserRepository},
     snowflake,
@@ -29,12 +29,12 @@ impl UserService {
     }
 
     /// Finds an user from its ID.
-    pub async fn get_user_by_id(&self, id: i64) -> Option<entity::User> {
+    pub async fn get_user_by_id(&self, id: i64) -> Option<UserDto> {
         self.repo.get_user_by_id(id).await
     }
 
     /// Finds an user from its username.
-    pub async fn get_user_by_username(&self, username: &str) -> Option<entity::User> {
+    pub async fn get_user_by_username(&self, username: &str) -> Option<UserDto> {
         self.repo.get_user_by_username(username).await
     }
 

@@ -1,8 +1,5 @@
 use crate::{
-    AppState,
-    dto::user::{FullProfileDto, UserError, UserStatsDto, error_examples},
-    entity,
-    response::{AppOk, AppResult},
+    dto::user::{error_examples, FullProfileDto, UserDto, UserError, UserStatsDto}, response::{AppOk, AppResult}, AppState
 };
 use axum::extract::{Path, State};
 
@@ -13,14 +10,14 @@ use axum::extract::{Path, State};
     get,
     path = "/{id}",
     responses(
-        (status = OK, description = "User object", body = entity::User),
+        (status = OK, description = "User object", body = UserDto),
         error_examples::UserNotFoundDto
     ),
 )]
 pub async fn get_user_by_id(
     State(state): State<AppState>,
     Path(id): Path<i64>,
-) -> AppResult<entity::User> {
+) -> AppResult<UserDto> {
     if let Some(user) = state.user_service.get_user_by_id(id).await {
         AppOk(user).into()
     } else {
@@ -35,14 +32,14 @@ pub async fn get_user_by_id(
     get,
     path = "/@{username}",
     responses(
-        (status = OK, description = "User object", body = entity::User),
+        (status = OK, description = "User object", body = UserDto),
         error_examples::UserNotFoundDto
     ),
 )]
 pub async fn get_user_by_username(
     State(state): State<AppState>,
     Path(username): Path<String>,
-) -> AppResult<entity::User> {
+) -> AppResult<UserDto> {
     if username.len() > 20 || username.is_empty() {
         return Err(UserError::UserNotFound.into());
     }

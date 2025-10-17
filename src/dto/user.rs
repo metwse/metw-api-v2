@@ -13,6 +13,21 @@ api_errors!(
     )
 );
 
+/// User's minimal profile including its id and username
+#[derive(Debug, FromRow, Serialize, ToSchema)]
+pub struct UserDto {
+    /// User's ID
+    pub id: i64,
+    /// Username
+    pub username: String,
+    /// Bitset for administrative user flags
+    #[serde(serialize_with = "crate::util::serialize_bitvec_as_bytes")]
+    #[schema(value_type = Vec<u8>)]
+    pub flags: BitVec,
+    /// A thread id for comments on user's wall
+    pub avatar_id: Option<i64>,
+}
+
 /// User's profile including its id and username
 #[derive(Debug, FromRow, Serialize, ToSchema)]
 pub struct FullProfileDto {

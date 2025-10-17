@@ -1,5 +1,5 @@
 use crate::{
-    dto::user::{FullProfileDto, UserStatsDto},
+    dto::user::{FullProfileDto, UserDto, UserStatsDto},
     entity,
     state::Database,
 };
@@ -16,22 +16,41 @@ impl UserRepository {
         Self { db }
     }
 
-    pub async fn get_user_by_id(&self, id: i64) -> Option<entity::User> {
+    pub async fn get_user_by_id(&self, id: i64) -> Option<UserDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as("SELECT id, username, flags FROM users WHERE id = $1").bind(id)
+            sqlx::query_as(indoc! {
+                "SELECT
+                    id, username, flags, (
+                        SELECT avatar_id
+                        FROM profiles WHERE user_id = id
+                    )
+                FROM users WHERE id = $1"
+            }).bind(id)
         )
     }
 
-    pub async fn get_user_by_username(&self, username: &str) -> Option<entity::User> {
+    /// For schema validation test
+    async fn __get_user_by_id(&self, id: i64) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
-            sqlx::query_as::<_, entity::User>(indoc! {
-                "SELECT id, username, flags
-                FROM users
-                WHERE username = $1::varchar",
-            })
-            .bind(username)
+            sqlx::query_as(
+                "SELECT id, username, flags FROM users WHERE id = $1"
+            ).bind(id)
+        )
+    }
+
+    pub async fn get_user_by_username(&self, username: &str) -> Option<UserDto> {
+        unwrap_fetch_one!(
+            &self.db.pool(),
+            sqlx::query_as(indoc! {
+                "SELECT
+                    id, username, flags, (
+                        SELECT avatar_id
+                        FROM profiles WHERE user_id = id
+                    )
+                FROM users WHERE username = $1"
+            }).bind(username)
         )
     }
 
@@ -176,14 +195,14 @@ mod tests {
         for i in 1..=9 {
             let username = format!("user0{i}");
 
-            repo.get_user_by_id(i + 1000).await.unwrap();
+            repo.__get_user_by_id(i + 1000).await.unwrap();
             repo.get_user_by_username(&username).await.unwrap();
             repo.__get_profile_by_id(i + 1000).await.unwrap();
             repo.get_profile_by_id(i + 1000).await.unwrap();
             repo.get_profile_by_username(&username).await.unwrap();
         }
 
-        assert!(repo.get_user_by_id(999).await.is_none());
+        assert!(repo.__get_user_by_id(999).await.is_none());
     }
 
     #[serial]

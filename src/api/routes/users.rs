@@ -1,4 +1,4 @@
-use crate::{AppState, dto::user::FullProfileDto, entity, handlers::user_handler as users};
+use crate::{dto::user::{FullProfileDto, UserDto}, handlers::user_handler as users, AppState};
 use axum::{Router, routing::get};
 use utoipa::OpenApi;
 
@@ -12,7 +12,7 @@ use utoipa::OpenApi;
         users::get_profile_by_username,
         users::get_user_stats_by_id,
     ),
-    components(schemas(entity::User, FullProfileDto))
+    components(schemas(UserDto, FullProfileDto))
 )]
 pub struct UsersApiDoc;
 
