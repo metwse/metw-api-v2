@@ -73,13 +73,11 @@ cd db
 docker build --build-arg fixtures=yes -t metw-db-test .
 docker run -d -p 2345:5432 --name metw-db-test metw-db-test
 ```
-> Note: Running tests with a dedicated database instance ensures isolation
-  between development and test data. You can easily recreate the test database
-  by removing and re-running the `metw-db-test` container.
+> **Note**: You need to enable fixtures to run tests.
 
 Once the test database is up, you can run your tests:
 ```sh
-cargo test -- --test-threads=1
+cargo test
 ```
 
 ### Cleanup

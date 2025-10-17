@@ -1,6 +1,6 @@
 [package]
 name = "metw-api-v2"
-version = "0.0.0"
+version = "0.1.0-rc.1"
 edition = "2024"
 description = "Version 2 metw.cc API backend"
 categories = ["web-programming"]
