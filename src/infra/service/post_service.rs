@@ -18,15 +18,26 @@ impl PostService {
         self.repo.get_post_by_id(id).await
     }
 
-    /// Gets posts in a thread.
-    pub async fn get_posts_of_thread_id(
+    /// Gets the latest posts in a thread.
+    pub async fn get_latest_posts_of_thread(
         &self,
         thread_id: Option<i64>,
         limit: Option<u64>,
         before: Option<i64>,
     ) -> Vec<entity::Post> {
         self.repo
-            .get_posts_of_thread_id(thread_id, limit, before)
+            .get_latest_posts_of_thread(thread_id, limit, before)
+            .await
+    }
+
+    /// Gets the hot posts in a thread.
+    pub async fn get_hot_posts_of_thread(
+        &self,
+        thread_id: Option<i64>,
+        time_period: Option<u64>,
+    ) -> Vec<entity::Post> {
+        self.repo
+            .get_hot_posts_of_thread(thread_id, time_period)
             .await
     }
 }

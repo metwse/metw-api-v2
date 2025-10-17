@@ -21,3 +21,10 @@ pub struct PagitationQuery {
     /// Elements before that id
     pub before: Option<i64>,
 }
+
+/// Time period query params.
+#[derive(Deserialize, IntoParams)]
+pub struct TimePeriodQuery {
+    /// Time period, in days
+    pub time_period: Option<u64>,
+}

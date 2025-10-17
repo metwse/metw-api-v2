@@ -1,15 +1,15 @@
 use crate::{
-    AppState,
     dto::{
-        PagitationQuery,
-        posts::{PostError, error_examples},
+        posts::{error_examples, PostError},
+        PagitationQuery, TimePeriodQuery,
     },
     entity,
     response::{AppOk, AppResult},
+    AppState,
 };
 use axum::{
-    Json,
     extract::{Path, Query, State},
+    Json,
 };
 
 /// Gets a post by ID.
@@ -47,12 +47,12 @@ pub async fn get_post_by_id(
 )]
 pub async fn get_latest_posts(
     State(state): State<AppState>,
-    Query(pagitation): Query<PagitationQuery>,
+    Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
 ) -> Json<Vec<entity::Post>> {
     Json(
         state
             .post_service
-            .get_posts_of_thread_id(None, pagitation.limit, pagitation.before)
+            .get_latest_posts_of_thread(None, limit, before)
             .await,
     )
 }
@@ -66,40 +66,64 @@ pub async fn get_latest_posts(
     responses(
         (status = OK, description = "Post list", body = Vec<entity::Post>),
     ),
-    params(PagitationQuery)
+    params(TimePeriodQuery)
 )]
 pub async fn get_hot_posts(
     State(state): State<AppState>,
-    Query(pagitation): Query<PagitationQuery>,
+    Query(TimePeriodQuery { time_period }): Query<TimePeriodQuery>,
 ) -> Json<Vec<entity::Post>> {
     Json(
         state
             .post_service
-            .get_posts_of_thread_id(None, pagitation.limit, pagitation.before)
+            .get_hot_posts_of_thread(None, time_period)
             .await,
     )
 }
 
-/// Gets a posts in a thread
+/// Gets the posts in a thread
 ///
 /// List of posts in a thread.
 #[utoipa::path(
     get,
-    path = "/threads/{thread_id}",
+    path = "/threads/{thread_id}/latest",
     responses(
         (status = OK, description = "Post list", body = Vec<entity::Post>),
     ),
     params(PagitationQuery)
 )]
-pub async fn get_posts_of_thread_id(
+pub async fn get_latest_posts_of_thread(
     State(state): State<AppState>,
     Path(thread_id): Path<i64>,
-    Query(pagitation): Query<PagitationQuery>,
+    Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
 ) -> Json<Vec<entity::Post>> {
     Json(
         state
             .post_service
-            .get_posts_of_thread_id(Some(thread_id), pagitation.limit, pagitation.before)
+            .get_latest_posts_of_thread(Some(thread_id), limit, before)
+            .await,
+    )
+}
+
+/// Gets hot posts in a thread
+///
+/// List of posts in a thread.
+#[utoipa::path(
+    get,
+    path = "/threads/{thread_id}/hot",
+    responses(
+        (status = OK, description = "Post list", body = Vec<entity::Post>),
+    ),
+    params(TimePeriodQuery)
+)]
+pub async fn get_hot_posts_of_thread(
+    State(state): State<AppState>,
+    Path(thread_id): Path<i64>,
+    Query(TimePeriodQuery { time_period }): Query<TimePeriodQuery>,
+) -> Json<Vec<entity::Post>> {
+    Json(
+        state
+            .post_service
+            .get_hot_posts_of_thread(Some(thread_id), time_period)
             .await,
     )
 }
