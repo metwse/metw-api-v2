@@ -1,5 +1,7 @@
+use sqlx::prelude::FromRow;
+
 /// Post
-#[derive(Clone, Debug, sqlx::FromRow, utoipa::ToSchema, serde::Serialize)]
+#[derive(Clone, Debug, FromRow)]
 pub struct Post {
     /// Unique identifier for the post
     pub id: i64,
@@ -18,7 +20,7 @@ pub struct Post {
 }
 
 /// Thread that posts are sent to
-#[derive(Clone, Debug, sqlx::FromRow)]
+#[derive(Clone, Debug, FromRow)]
 pub struct Thread {
     /// Unique identifier for the thread
     pub id: i64,

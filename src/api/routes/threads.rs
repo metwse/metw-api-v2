@@ -1,4 +1,4 @@
-use crate::{AppState, entity, handlers::thread_handler as threads};
+use crate::{AppState, dto::posts::PostDto, handlers::thread_handler as threads};
 use axum::{Router, routing::get};
 use utoipa::OpenApi;
 
@@ -11,7 +11,7 @@ use utoipa::OpenApi;
         threads::get_latest_posts,
         threads::get_hot_posts,
     ),
-    components(schemas(entity::Post))
+    components(schemas(PostDto))
 )]
 pub struct ThreadsApiDoc;
 
