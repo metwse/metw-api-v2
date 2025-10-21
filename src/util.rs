@@ -2,8 +2,6 @@ use argon2::{
     Argon2, PasswordHash,
     password_hash::{PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
-use serde::{Serialize, Serializer};
-use sqlx::types::BitVec;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::instrument;
 
@@ -60,15 +58,4 @@ mod tests {
 
         assert!(argon2_verify(password, password_hash).await);
     }
-}
-
-pub(crate) fn serialize_bitvec_as_bytes<S>(
-    bitvec: &BitVec,
-    serializer: S,
-) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let bytes: Vec<u8> = bitvec.clone().to_bytes();
-    bytes.serialize(serializer)
 }

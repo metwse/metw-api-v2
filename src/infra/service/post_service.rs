@@ -1,6 +1,5 @@
 use crate::{
-    dto::posts::PostStatsDto,
-    entity,
+    dto::posts::{PostDto, PostStatsDto},
     repository::{PostRepository, ThreadRepository},
     state::Database,
 };
@@ -21,8 +20,8 @@ impl PostService {
     }
 
     /// Finds a post from its ID.
-    pub async fn get_post_by_id(&self, id: i64) -> Option<entity::Post> {
-        self.repo.get_post_by_id(id).await
+    pub async fn get_post_by_id(&self, id: i64) -> Option<PostDto> {
+        self.repo.get_post_by_id(id).await.map(|post| post.into())
     }
 
     /// Fetches posts's stats from its ID.
@@ -36,10 +35,13 @@ impl PostService {
         thread_id: Option<i64>,
         limit: Option<u64>,
         before: Option<i64>,
-    ) -> Vec<entity::Post> {
+    ) -> Vec<PostDto> {
         self.thread_repo
             .get_latest_posts(thread_id, limit, before)
             .await
+            .into_iter()
+            .map(|post| post.into())
+            .collect()
     }
 
     /// Gets the hot posts in a thread.
@@ -47,7 +49,12 @@ impl PostService {
         &self,
         thread_id: Option<i64>,
         time_period: Option<u64>,
-    ) -> Vec<entity::Post> {
-        self.thread_repo.get_hot_posts(thread_id, time_period).await
+    ) -> Vec<PostDto> {
+        self.thread_repo
+            .get_hot_posts(thread_id, time_period)
+            .await
+            .into_iter()
+            .map(|post| post.into())
+            .collect()
     }
 }

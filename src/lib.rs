@@ -33,6 +33,9 @@ pub mod infra;
 /// Routes and their handlers
 pub mod api;
 
+/// Encoding implementations for custom serde serializers.
+pub mod enc;
+
 /// Test helpers
 #[cfg(test)]
 pub mod testutil;

@@ -1,4 +1,4 @@
-use crate::{AppState, entity, handlers::post_handler as posts};
+use crate::{AppState, dto::posts::PostDto, handlers::post_handler as posts};
 use axum::{Router, routing::get};
 use utoipa::OpenApi;
 
@@ -6,7 +6,7 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     paths(posts::get_post_by_id, posts::get_post_stats_by_id),
-    components(schemas(entity::Post))
+    components(schemas(PostDto))
 )]
 pub struct PostsApiDoc;
 

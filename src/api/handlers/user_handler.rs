@@ -1,14 +1,14 @@
 use crate::{
+    AppState,
     dto::{
-        user::{error_examples, FullProfileDto, UserDto, UserError, UserStatsDto},
         PagitationQuery,
+        user::{FullProfileDto, UserDto, UserError, UserStatsDto, error_examples},
     },
     response::{AppOk, AppResult},
-    AppState,
 };
 use axum::{
-    extract::{Path, Query, State},
     Json,
+    extract::{Path, Query, State},
 };
 
 /// Gets an user by ID.

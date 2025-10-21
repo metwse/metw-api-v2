@@ -154,9 +154,7 @@ mod tests {
             assert_eq!(posts[i as usize - 1].id, 4021 - i);
         }
 
-        let posts = repo
-            .get_latest_posts(None, Some(5), Some(4011))
-            .await;
+        let posts = repo.get_latest_posts(None, Some(5), Some(4011)).await;
 
         for i in 1..=5i64 {
             assert_eq!(posts[i as usize - 1].id, 4011 - i);

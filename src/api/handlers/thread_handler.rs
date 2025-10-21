@@ -1,7 +1,6 @@
 use crate::{
     AppState,
-    dto::{PagitationQuery, TimePeriodQuery},
-    entity,
+    dto::{PagitationQuery, TimePeriodQuery, posts::PostDto},
 };
 use axum::{
     Json,
@@ -15,14 +14,14 @@ use axum::{
     get,
     path = "/latest",
     responses(
-        (status = OK, description = "Post list", body = Vec<entity::Post>),
+        (status = OK, description = "Post list", body = Vec<PostDto>),
     ),
     params(PagitationQuery)
 )]
 pub async fn get_latest_posts(
     State(state): State<AppState>,
     Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
-) -> Json<Vec<entity::Post>> {
+) -> Json<Vec<PostDto>> {
     Json(
         state
             .post_service
@@ -38,14 +37,14 @@ pub async fn get_latest_posts(
     get,
     path = "/hot",
     responses(
-        (status = OK, description = "Post list", body = Vec<entity::Post>),
+        (status = OK, description = "Post list", body = Vec<PostDto>),
     ),
     params(TimePeriodQuery)
 )]
 pub async fn get_hot_posts(
     State(state): State<AppState>,
     Query(TimePeriodQuery { time_period }): Query<TimePeriodQuery>,
-) -> Json<Vec<entity::Post>> {
+) -> Json<Vec<PostDto>> {
     Json(
         state
             .post_service
@@ -61,7 +60,7 @@ pub async fn get_hot_posts(
     get,
     path = "/{id}/latest",
     responses(
-        (status = OK, description = "Post list", body = Vec<entity::Post>),
+        (status = OK, description = "Post list", body = Vec<PostDto>),
     ),
     params(PagitationQuery)
 )]
@@ -69,7 +68,7 @@ pub async fn get_latest_posts_of_thread(
     State(state): State<AppState>,
     Path(id): Path<i64>,
     Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
-) -> Json<Vec<entity::Post>> {
+) -> Json<Vec<PostDto>> {
     Json(
         state
             .post_service
@@ -85,7 +84,7 @@ pub async fn get_latest_posts_of_thread(
     get,
     path = "/{id}/hot",
     responses(
-        (status = OK, description = "Post list", body = Vec<entity::Post>),
+        (status = OK, description = "Post list", body = Vec<PostDto>),
     ),
     params(TimePeriodQuery)
 )]
@@ -93,7 +92,7 @@ pub async fn get_hot_posts_of_thread(
     State(state): State<AppState>,
     Path(id): Path<i64>,
     Query(TimePeriodQuery { time_period }): Query<TimePeriodQuery>,
-) -> Json<Vec<entity::Post>> {
+) -> Json<Vec<PostDto>> {
     Json(
         state
             .post_service
