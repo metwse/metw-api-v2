@@ -6,7 +6,7 @@ description = "Version 2 metw.cc API backend"
 categories = ["web-programming"]
 keywords = ["api", "backend"]
 readme = "./README.md"
-license = "MIT"
+license = "AGPL-3.0-or-later"
 repository = "https://github.com/metwse/metw-api-v2"
 authors = ["Metehan Selvi <me@metehanselvi.com>"]
 

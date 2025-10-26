@@ -88,3 +88,6 @@ argument.
 docker stop metw-db metw-db-test
 docker rm --force metw-db metw-db-test
 ```
+
+## License
+Versions >0.1.0-rc.1 licensed under GNU Affero General Public License.
