@@ -3,7 +3,7 @@ macro_rules! unwrap_execute {
         match $query.execute($db).await {
             Ok(data) => Some(data),
             Err(err) => {
-                tracing::error!(?err, "Unexcepted sqlx error");
+                tracing::error!(?err, "Unexpected sqlx error");
                 None
             }
         }
@@ -17,7 +17,7 @@ macro_rules! unwrap_fetch_one {
             Err(err) => match err {
                 sqlx::Error::RowNotFound => None,
                 _ => {
-                    tracing::error!(?err, "Unexcepted sqlx error");
+                    tracing::error!(?err, "Unexpected sqlx error");
                     None
                 }
             },
@@ -30,7 +30,7 @@ macro_rules! unwrap_fetch_all {
         match $query.fetch_all($db).await {
             Ok(data) => data,
             Err(err) => {
-                tracing::error!(?err, "Unexcepted sqlx error");
+                tracing::error!(?err, "Unexpected sqlx error");
                 vec![]
             }
         }
