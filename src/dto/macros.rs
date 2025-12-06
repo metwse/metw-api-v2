@@ -104,7 +104,7 @@ macro_rules! api_errors_impl {
 
         #[doc = stringify!($error_name)]
         #[doc = "error response example"]
-        pub mod error_examples { paste::paste! {
+        pub mod error_examples { pastey::paste! {
             use crate::response::AppError;
             use super::$error_name;
             use utoipa::{

@@ -1,4 +1,4 @@
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use metw_api_v2::{Config, app::create_router, state};
 use std::{env, net::SocketAddr};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

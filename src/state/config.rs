@@ -19,7 +19,7 @@ impl Config {
         env_filename: Option<impl AsRef<std::path::Path>>,
     ) -> Result<Self, env::VarError> {
         if let Some(env_filename) = env_filename {
-            dotenv::from_filename(env_filename).ok();
+            dotenvy::from_filename(env_filename).ok();
         }
 
         let config = Self {
