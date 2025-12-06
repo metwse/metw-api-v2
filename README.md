@@ -24,10 +24,14 @@ OpenAPI-compatible client.
 ## Environment Setup
 Create a `.env` file (you can copy `.env.example`):
 ```sh
-DATABASE_URL=postgres://metwcc:db_password@localhost:5432/metw-v2
+DATABASE_URL=postgres://metwcc:db_password@localhost:2345/metw-v2
+# Change db password from metw-db which is in the Dockerfile and put it here to db_password part 
 REDIS_URL=redis://localhost/
+# Put your redis server url to redis_host part
 JWT_SECRET=CHANGEME
+# Change JWT Secret to something secure
 HOST=127.0.0.1:1186
+# Change your host and port if it is different from default
 ```
 > These environment variables are used by the backend for connecting to
   PostgreSQL and Redis.
