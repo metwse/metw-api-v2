@@ -1,10 +1,13 @@
-use sqlx::{prelude::FromRow, types::BitVec};
+use super::{AttachmentId, ThreadId};
+use sqlx::{types::BitVec, FromRow};
+
+newtype_id!(User, Email);
 
 /// User
 #[derive(Clone, Debug, FromRow)]
 pub struct User {
     /// Unique identifier for the user
-    pub id: i64,
+    pub id: UserId,
     /// Username
     pub username: String,
     /// Bitset for administrative user flags
@@ -15,9 +18,9 @@ pub struct User {
 #[derive(Clone, Debug, FromRow)]
 pub struct Email {
     /// Unique identifier for email
-    pub id: i64,
+    pub id: EmailId,
     /// Id of the [`User`] that email belongs to
-    pub user_id: i64,
+    pub user_id: UserId,
     /// Email
     pub email: String,
     /// Whether or not the email has been verified
@@ -28,13 +31,13 @@ pub struct Email {
 #[derive(Clone, Debug, FromRow)]
 pub struct Profile {
     /// Id of the user that profile belongs to
-    pub user_id: i64,
+    pub user_id: UserId,
     /// A thread id for comments on user's wall
-    pub comments_thread_id: i64,
+    pub comments_thread_id: ThreadId,
     /// Attachment id for user's avatar
-    pub avatar_id: Option<i64>,
+    pub avatar_id: Option<AttachmentId>,
     /// Attachment id for user's banner
-    pub banner_id: Option<i64>,
+    pub banner_id: Option<AttachmentId>,
     /// Biography
     pub bio: String,
 }

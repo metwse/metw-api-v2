@@ -1,4 +1,4 @@
-use crate::{state::Redis, util::timestamp};
+use crate::{entity::UserId, state::Redis, util::timestamp};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
@@ -11,7 +11,7 @@ static AUTH_TOKEN_TTL: u64 = 3600 * 24 * 90;
 #[derive(Serialize, Deserialize)]
 pub struct AuthToken {
     /// User ID (sub)
-    pub id: i64,
+    pub id: UserId,
     /// Username
     pub username: String,
     /// Issued at (as Unix timestamp)
@@ -22,7 +22,7 @@ pub struct AuthToken {
 
 impl WebToken for AuthToken {
     fn sub(&self) -> i64 {
-        self.id
+        self.id.0
     }
 
     fn exp(&self) -> u64 {
@@ -36,7 +36,7 @@ impl WebToken for AuthToken {
 
 impl AuthToken {
     /// Creates a new authentication token
-    pub fn new(id: i64, username: String) -> Self {
+    pub fn new(id: UserId, username: String) -> Self {
         let iat = timestamp();
 
         AuthToken {

@@ -1,10 +1,11 @@
 use crate::{
+    dto::{posts::PostDto, PagitationQuery, TimePeriodQuery},
+    entity::{PostId, ThreadId},
     AppState,
-    dto::{PagitationQuery, TimePeriodQuery, posts::PostDto},
 };
 use axum::{
-    Json,
     extract::{Path, Query, State},
+    Json,
 };
 
 /// Gets latest posts on the main thread
@@ -25,7 +26,7 @@ pub async fn get_latest_posts(
     Json(
         state
             .post_service
-            .get_latest_posts_of_thread(None, limit, before)
+            .get_latest_posts_of_thread(None, limit, before.map(PostId))
             .await,
     )
 }
@@ -66,13 +67,13 @@ pub async fn get_hot_posts(
 )]
 pub async fn get_latest_posts_of_thread(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<ThreadId>,
     Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
 ) -> Json<Vec<PostDto>> {
     Json(
         state
             .post_service
-            .get_latest_posts_of_thread(Some(id), limit, before)
+            .get_latest_posts_of_thread(Some(id), limit, before.map(PostId))
             .await,
     )
 }
@@ -90,7 +91,7 @@ pub async fn get_latest_posts_of_thread(
 )]
 pub async fn get_hot_posts_of_thread(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<ThreadId>,
     Query(TimePeriodQuery { time_period }): Query<TimePeriodQuery>,
 ) -> Json<Vec<PostDto>> {
     Json(

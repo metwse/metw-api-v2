@@ -1,14 +1,15 @@
 use crate::{
-    AppState,
     dto::{
+        user::{error_examples, FullProfileDto, UserDto, UserError, UserStatsDto},
         PagitationQuery,
-        user::{FullProfileDto, UserDto, UserError, UserStatsDto, error_examples},
     },
+    entity::UserId,
     response::{AppOk, AppResult},
+    AppState,
 };
 use axum::{
-    Json,
     extract::{Path, Query, State},
+    Json,
 };
 
 /// Gets an user by ID.
@@ -24,7 +25,7 @@ use axum::{
 )]
 pub async fn get_user_by_id(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<UserId>,
 ) -> AppResult<UserDto> {
     if let Some(user) = state.user_service.get_user_by_id(id).await {
         AppOk(user).into()
@@ -72,7 +73,7 @@ pub async fn get_user_by_username(
 )]
 pub async fn get_profile_by_id(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<UserId>,
 ) -> AppResult<FullProfileDto> {
     if let Some(user) = state.user_service.get_profile_by_id(id).await {
         AppOk(user).into()
@@ -120,7 +121,7 @@ pub async fn get_profile_by_username(
 )]
 pub async fn get_user_stats_by_id(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<UserId>,
 ) -> AppResult<UserStatsDto> {
     if let Some(user_stats) = state.user_service.get_user_stats_by_id(id).await {
         AppOk(user_stats).into()
@@ -142,10 +143,15 @@ pub async fn get_user_stats_by_id(
 )]
 pub async fn get_follows(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<UserId>,
     Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
 ) -> Json<Vec<UserDto>> {
-    Json(state.user_service.get_follows(id, limit, before).await)
+    Json(
+        state
+            .user_service
+            .get_follows(id, limit, before.map(UserId))
+            .await,
+    )
 }
 
 /// User's followers
@@ -161,8 +167,13 @@ pub async fn get_follows(
 )]
 pub async fn get_followers(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<UserId>,
     Query(PagitationQuery { limit, before }): Query<PagitationQuery>,
 ) -> Json<Vec<UserDto>> {
-    Json(state.user_service.get_followers(id, limit, before).await)
+    Json(
+        state
+            .user_service
+            .get_followers(id, limit, before.map(UserId))
+            .await,
+    )
 }

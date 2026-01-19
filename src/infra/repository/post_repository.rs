@@ -1,4 +1,8 @@
-use crate::{dto::posts::PostStatsDto, entity, state::Database};
+use crate::{
+    dto::posts::PostStatsDto,
+    entity::{self, PostId},
+    state::Database,
+};
 use indoc::indoc;
 
 /// Post data access repository
@@ -11,7 +15,7 @@ impl PostRepository {
         Self { db }
     }
 
-    pub async fn get_post_by_id(&self, id: i64) -> Option<entity::Post> {
+    pub async fn get_post_by_id(&self, id: PostId) -> Option<entity::Post> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as(indoc! {
@@ -24,7 +28,7 @@ impl PostRepository {
         )
     }
 
-    pub async fn get_post_stats_by_id(&self, id: i64) -> Option<PostStatsDto> {
+    pub async fn get_post_stats_by_id(&self, id: PostId) -> Option<PostStatsDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as(indoc! {
@@ -58,7 +62,7 @@ mod tests {
         let repo = PostRepository::new(test_db().await);
 
         for i in 1..=20 {
-            repo.get_post_by_id(i + 4000).await.unwrap();
+            repo.get_post_by_id(PostId(i + 4000)).await.unwrap();
         }
     }
 }

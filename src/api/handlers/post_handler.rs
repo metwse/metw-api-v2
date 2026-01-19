@@ -1,6 +1,7 @@
 use crate::{
     AppState,
     dto::posts::{PostDto, PostError, PostStatsDto, error_examples},
+    entity::PostId,
     response::{AppOk, AppResult},
 };
 use axum::extract::{Path, State};
@@ -18,7 +19,7 @@ use axum::extract::{Path, State};
 )]
 pub async fn get_post_by_id(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<PostId>,
 ) -> AppResult<PostDto> {
     if let Some(post) = state.post_service.get_post_by_id(id).await {
         AppOk(post).into()
@@ -41,7 +42,7 @@ pub async fn get_post_by_id(
 
 pub async fn get_post_stats_by_id(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<PostId>,
 ) -> AppResult<PostStatsDto> {
     if let Some(post) = state.post_service.get_post_stats_by_id(id).await {
         AppOk(post).into()

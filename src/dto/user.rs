@@ -1,5 +1,6 @@
+use crate::entity::{AttachmentId, ThreadId, UserId};
 use serde::Serialize;
-use serde_with::{DisplayFromStr, serde_as};
+use serde_with::{serde_as, DisplayFromStr};
 use sqlx::{prelude::FromRow, types::BitVec};
 use utoipa::ToSchema;
 
@@ -21,7 +22,7 @@ pub struct UserDto {
     /// User's ID
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub id: i64,
+    pub id: UserId,
     /// Username
     pub username: String,
     /// Bitset for user flags as hexadecimal number
@@ -31,7 +32,7 @@ pub struct UserDto {
     /// A thread id for comments on user's wall
     #[schema(value_type = Option<String>)]
     #[serde_as(as = "Option<DisplayFromStr>")]
-    pub avatar_id: Option<i64>,
+    pub avatar_id: Option<AttachmentId>,
 }
 
 /// User's profile including its id and username
@@ -41,7 +42,7 @@ pub struct FullProfileDto {
     /// User's ID
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub id: i64,
+    pub id: UserId,
     /// Username
     pub username: String,
     /// Bitset for user flags as hexadecimal number
@@ -51,15 +52,15 @@ pub struct FullProfileDto {
     /// A thread id for comments on user's wall
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub comments_thread_id: i64,
+    pub comments_thread_id: ThreadId,
     /// Attachment id for user's avatar
     #[schema(value_type = Option<String>)]
     #[serde_as(as = "Option<DisplayFromStr>")]
-    pub avatar_id: Option<i64>,
+    pub avatar_id: Option<AttachmentId>,
     /// Attachment id for user's banner
     #[schema(value_type = Option<String>)]
     #[serde_as(as = "Option<DisplayFromStr>")]
-    pub banner_id: Option<i64>,
+    pub banner_id: Option<AttachmentId>,
     /// Biography
     pub bio: String,
 }

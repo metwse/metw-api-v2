@@ -1,4 +1,7 @@
-use crate::{entity, state::Database};
+use crate::{
+    entity::{self, PostId, ThreadId},
+    state::Database,
+};
 use indoc::indoc;
 use sqlx::PgTransaction;
 
@@ -12,7 +15,7 @@ impl ThreadRepository {
         Self { db }
     }
 
-    pub async fn get_thread_by_id(&self, id: i64) -> Option<entity::Thread> {
+    pub async fn get_thread_by_id(&self, id: ThreadId) -> Option<entity::Thread> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::Thread>(
@@ -45,12 +48,12 @@ impl ThreadRepository {
 
     pub async fn get_latest_posts(
         &self,
-        thread_id: Option<i64>,
+        thread_id: Option<ThreadId>,
         limit: Option<u64>,
-        before: Option<i64>,
+        before: Option<PostId>,
     ) -> Vec<entity::Post> {
         let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
-        let before = before.unwrap_or(i64::MAX);
+        let before = before.unwrap_or(PostId(i64::MAX));
 
         let sql = format!(
             indoc! {
@@ -80,7 +83,7 @@ impl ThreadRepository {
 
     pub async fn get_hot_posts(
         &self,
-        thread_id: Option<i64>,
+        thread_id: Option<ThreadId>,
         time_period: Option<u64>,
     ) -> Vec<entity::Post> {
         let time_period = time_period.unwrap_or(7).clamp(1, 30);
@@ -144,20 +147,20 @@ mod tests {
         let repo = ThreadRepository::new(test_db().await);
 
         for i in 1..=20 {
-            repo.get_thread_by_id(i + 2000).await.unwrap();
-            repo.get_thread_by_id(i + 3000).await.unwrap();
+            repo.get_thread_by_id(ThreadId(i + 2000)).await.unwrap();
+            repo.get_thread_by_id(ThreadId(i + 3000)).await.unwrap();
         }
 
         let posts = repo.get_latest_posts(None, Some(10), None).await;
 
         for i in 1..=10i64 {
-            assert_eq!(posts[i as usize - 1].id, 4021 - i);
+            assert_eq!(posts[i as usize - 1].id, PostId(4021 - i));
         }
 
         let posts = repo.get_latest_posts(None, Some(5), Some(4011)).await;
 
         for i in 1..=5i64 {
-            assert_eq!(posts[i as usize - 1].id, 4011 - i);
+            assert_eq!(posts[i as usize - 1].id, PostId(4011 - i));
         }
 
         repo.get_hot_posts(None, Some(7)).await;

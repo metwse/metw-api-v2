@@ -1,6 +1,6 @@
 use crate::{
     dto::user::{FullProfileDto, UserDto, UserStatsDto},
-    entity,
+    entity::{self, UserId},
     state::Database,
 };
 use indoc::indoc;
@@ -16,7 +16,7 @@ impl UserRepository {
         Self { db }
     }
 
-    pub async fn get_user_by_id(&self, id: i64) -> Option<UserDto> {
+    pub async fn get_user_by_id(&self, id: UserId) -> Option<UserDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as(indoc! {
@@ -32,7 +32,7 @@ impl UserRepository {
     }
 
     /// For schema validation test
-    async fn __get_user_by_id(&self, id: i64) -> Option<entity::User> {
+    async fn __get_user_by_id(&self, id: UserId) -> Option<entity::User> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as("SELECT id, username, flags FROM users WHERE id = $1").bind(id)
@@ -55,7 +55,7 @@ impl UserRepository {
     }
 
     /// For schema validation test
-    async fn __get_profile_by_id(&self, user_id: i64) -> Option<entity::Profile> {
+    async fn __get_profile_by_id(&self, user_id: UserId) -> Option<entity::Profile> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, entity::Profile>(indoc! {
@@ -67,7 +67,7 @@ impl UserRepository {
         )
     }
 
-    pub async fn get_profile_by_id(&self, user_id: i64) -> Option<FullProfileDto> {
+    pub async fn get_profile_by_id(&self, user_id: UserId) -> Option<FullProfileDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, FullProfileDto>(indoc! {
@@ -91,7 +91,7 @@ impl UserRepository {
         )
     }
 
-    pub async fn get_user_stats_by_id(&self, id: i64) -> Option<UserStatsDto> {
+    pub async fn get_user_stats_by_id(&self, id: UserId) -> Option<UserStatsDto> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as(indoc! {
@@ -117,7 +117,7 @@ impl UserRepository {
         )
     }
 
-    pub async fn get_user_password_hash_by_id(&self, id: i64) -> Option<String> {
+    pub async fn get_user_password_hash_by_id(&self, id: UserId) -> Option<String> {
         unwrap_fetch_one!(
             &self.db.pool(),
             sqlx::query_as::<_, (String,)>("SELECT password_hash FROM users WHERE id = $1")
@@ -137,12 +137,12 @@ impl UserRepository {
 
     pub async fn get_follows(
         &self,
-        id: i64,
+        id: UserId,
         limit: Option<u64>,
-        before: Option<i64>,
+        before: Option<UserId>,
     ) -> Vec<UserDto> {
         let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
-        let before = before.unwrap_or(i64::MAX);
+        let before = before.unwrap_or(UserId(i64::MAX));
 
         unwrap_fetch_all!(
             &self.db.pool(),
@@ -167,12 +167,12 @@ impl UserRepository {
 
     pub async fn get_followers(
         &self,
-        id: i64,
+        id: UserId,
         limit: Option<u64>,
-        before: Option<i64>,
+        before: Option<UserId>,
     ) -> Vec<UserDto> {
         let limit = std::cmp::min(limit.unwrap_or(32), 32) as i64;
-        let before = before.unwrap_or(i64::MAX);
+        let before = before.unwrap_or(UserId(i64::MAX));
 
         unwrap_fetch_all!(
             &self.db.pool(),
@@ -243,7 +243,7 @@ impl UserRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{repository::ThreadRepository, snowflake, testutil::test_db};
+    use crate::{entity::ThreadId, repository::ThreadRepository, snowflake, testutil::test_db};
     use serial_test::serial;
     use sqlx::types::BitVec;
 
@@ -255,14 +255,14 @@ mod tests {
         for i in 1..=9 {
             let username = format!("user0{i}");
 
-            repo.__get_user_by_id(i + 1000).await.unwrap();
+            repo.__get_user_by_id(UserId(i + 1000)).await.unwrap();
             repo.get_user_by_username(&username).await.unwrap();
-            repo.__get_profile_by_id(i + 1000).await.unwrap();
-            repo.get_profile_by_id(i + 1000).await.unwrap();
+            repo.__get_profile_by_id(UserId(i + 1000)).await.unwrap();
+            repo.get_profile_by_id(UserId(i + 1000)).await.unwrap();
             repo.get_profile_by_username(&username).await.unwrap();
         }
 
-        assert!(repo.__get_user_by_id(999).await.is_none());
+        assert!(repo.__get_user_by_id(UserId(999)).await.is_none());
     }
 
     #[serial]
@@ -274,8 +274,8 @@ mod tests {
 
         let mut tx = db.pool().begin().await.unwrap();
 
-        let user_id = snowflake();
-        let thread_id = snowflake();
+        let user_id = UserId(snowflake());
+        let thread_id = ThreadId(snowflake());
         let username = format!("{}", snowflake());
         let password_hash = format!("{}", snowflake());
         let bio = format!("{}", snowflake());

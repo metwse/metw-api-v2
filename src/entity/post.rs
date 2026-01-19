@@ -1,29 +1,32 @@
-use sqlx::prelude::FromRow;
+use super::{AttachmentId, UserId};
+use sqlx::FromRow;
+
+newtype_id!(Post, Thread);
 
 /// Post
 #[derive(Clone, Debug, FromRow)]
 pub struct Post {
     /// Unique identifier for the post
-    pub id: i64,
+    pub id: PostId,
     /// The user that sent this post
-    pub user_id: i64,
+    pub user_id: UserId,
     /// The thread that the post belongs to
-    pub thread_id: Option<i64>,
+    pub thread_id: Option<ThreadId>,
     /// Thread id for replying this post
-    pub replies_thread_id: i64,
+    pub replies_thread_id: ThreadId,
     /// Whether or not the post has been edited
     pub is_edited: bool,
     /// Content
     pub content: String,
     /// List of attachment ids
-    pub attachments: Vec<i64>,
+    pub attachments: Vec<AttachmentId>,
 }
 
 /// Thread that posts are sent to
 #[derive(Clone, Debug, FromRow)]
 pub struct Thread {
     /// Unique identifier for the thread
-    pub id: i64,
+    pub id: ThreadId,
     /// Id of the user that created this thread
-    pub user_id: i64,
+    pub user_id: UserId,
 }

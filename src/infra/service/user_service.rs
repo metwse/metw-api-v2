@@ -1,6 +1,6 @@
 use crate::{
     dto::user::{FullProfileDto, UserDto, UserStatsDto},
-    entity,
+    entity::{self, ThreadId, UserId},
     repository::{ThreadRepository, UserRepository},
     snowflake,
     state::Database,
@@ -29,7 +29,7 @@ impl UserService {
     }
 
     /// Finds an user from its ID.
-    pub async fn get_user_by_id(&self, id: i64) -> Option<UserDto> {
+    pub async fn get_user_by_id(&self, id: UserId) -> Option<UserDto> {
         self.repo.get_user_by_id(id).await
     }
 
@@ -39,7 +39,7 @@ impl UserService {
     }
 
     /// Fetches user's profile from its ID.
-    pub async fn get_profile_by_id(&self, user_id: i64) -> Option<FullProfileDto> {
+    pub async fn get_profile_by_id(&self, user_id: UserId) -> Option<FullProfileDto> {
         self.repo.get_profile_by_id(user_id).await
     }
 
@@ -49,16 +49,16 @@ impl UserService {
     }
 
     /// Fetches user's stats from its ID.
-    pub async fn get_user_stats_by_id(&self, id: i64) -> Option<UserStatsDto> {
+    pub async fn get_user_stats_by_id(&self, id: UserId) -> Option<UserStatsDto> {
         self.repo.get_user_stats_by_id(id).await
     }
 
     /// Fetches user's stats from its ID.
     pub async fn get_follows(
         &self,
-        id: i64,
+        id: UserId,
         limit: Option<u64>,
-        before: Option<i64>,
+        before: Option<UserId>,
     ) -> Vec<UserDto> {
         self.repo.get_follows(id, limit, before).await
     }
@@ -66,15 +66,15 @@ impl UserService {
     /// Fetches user's stats from its ID.
     pub async fn get_followers(
         &self,
-        id: i64,
+        id: UserId,
         limit: Option<u64>,
-        before: Option<i64>,
+        before: Option<UserId>,
     ) -> Vec<UserDto> {
         self.repo.get_followers(id, limit, before).await
     }
 
     /// Checks user's password.
-    pub async fn validate_password_of_user_id(&self, user_id: i64, password: String) -> bool {
+    pub async fn validate_password_of_user_id(&self, user_id: UserId, password: String) -> bool {
         if let Some(password_hash) = self.repo.get_user_password_hash_by_id(user_id).await {
             argon2_verify(password, password_hash).await
         } else {
@@ -97,8 +97,8 @@ impl UserService {
     pub async fn create_user(&self, username: String, password: String) -> Option<FullProfileDto> {
         let password_hash = argon2_hash(password).await?;
 
-        let user_id = snowflake();
-        let thread_id = snowflake();
+        let user_id = UserId(snowflake());
+        let thread_id = ThreadId(snowflake());
 
         let mut tx = self.db.pool().begin().await.ok()?;
 

@@ -1,9 +1,8 @@
+use crate::entity::{self, AttachmentId, PostId, ThreadId, UserId};
 use serde::Serialize;
-use serde_with::{DisplayFromStr, serde_as};
+use serde_with::{serde_as, DisplayFromStr};
 use sqlx::prelude::FromRow;
 use utoipa::ToSchema;
-
-use crate::entity;
 
 api_errors!(
     PostError,
@@ -23,19 +22,19 @@ pub struct PostDto {
     /// Unique identifier for the post
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub id: i64,
+    pub id: PostId,
     /// The user that sent this post
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub user_id: i64,
+    pub user_id: UserId,
     /// The thread that the post belongs to
     #[schema(value_type = Option<String>)]
     #[serde_as(as = "Option<DisplayFromStr>")]
-    pub thread_id: Option<i64>,
+    pub thread_id: Option<ThreadId>,
     /// Thread id for replying this post
     #[schema(value_type = String)]
     #[serde_as(as = "DisplayFromStr")]
-    pub replies_thread_id: i64,
+    pub replies_thread_id: ThreadId,
     /// Whether or not the post has been edited
     pub is_edited: bool,
     /// Content
@@ -43,7 +42,7 @@ pub struct PostDto {
     /// List of attachment ids
     #[schema(value_type = Vec<String>)]
     #[serde_as(as = "Vec<DisplayFromStr>")]
-    pub attachments: Vec<i64>,
+    pub attachments: Vec<AttachmentId>,
 }
 
 /// Stats for user profile
@@ -55,16 +54,16 @@ pub struct PostStatsDto {
     pub likes: i64,
 }
 
-impl Into<PostDto> for entity::Post {
-    fn into(self) -> PostDto {
+impl From<entity::Post> for PostDto {
+    fn from(post: entity::Post) -> PostDto {
         PostDto {
-            id: self.id,
-            user_id: self.user_id,
-            thread_id: self.thread_id,
-            replies_thread_id: self.replies_thread_id,
-            is_edited: self.is_edited,
-            content: self.content,
-            attachments: self.attachments,
+            id: post.id,
+            user_id: post.user_id,
+            thread_id: post.thread_id,
+            replies_thread_id: post.replies_thread_id,
+            is_edited: post.is_edited,
+            content: post.content,
+            attachments: post.attachments,
         }
     }
 }
